@@ -8,5 +8,6 @@
     "enabled": true,
     "startTime": "14:10",
     "endTime": "05:00"
-  }
+  },
+  "timezone": "Europe/Berlin"
 }

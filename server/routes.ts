@@ -602,6 +602,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Hilfsfunktion um aktuelle Zeit in der konfigurierten Zeitzone zu erhalten
+  const getCurrentTimeInTimezone = (timezone: string = "Europe/Berlin"): string => {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('de-DE', {
+      timeZone: timezone,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+    
+    const parts = formatter.formatToParts(now);
+    const hours = parts.find(p => p.type === 'hour')?.value || '00';
+    const minutes = parts.find(p => p.type === 'minute')?.value || '00';
+    
+    return `${hours}:${minutes}`;
+  };
+
   // Scheduler für automatische Nachtladung
   let nightChargingSchedulerInterval: NodeJS.Timeout | null = null;
   
@@ -611,8 +628,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const schedule = settings?.nightChargingSchedule;
       const currentState = storage.getControlState();
       
-      const now = new Date();
-      const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      const timezone = settings?.timezone || "Europe/Berlin";
+      const currentTime = getCurrentTimeInTimezone(timezone);
       
       log("info", "system", `Nachtladungs-Scheduler läuft - Aktuelle Zeit: ${currentTime}, Zeitsteuerung aktiviert: ${schedule?.enabled}, Zeitfenster: ${schedule?.startTime}-${schedule?.endTime}`);
       

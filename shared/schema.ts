@@ -31,6 +31,7 @@ export const settingsSchema = z.object({
   batteryLockOnUrl: z.string().optional(),
   batteryLockOffUrl: z.string().optional(),
   nightChargingSchedule: nightChargingScheduleSchema.optional(),
+  timezone: z.string().optional(),
 });
 
 export type Settings = z.infer<typeof settingsSchema>;

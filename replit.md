@@ -1,274 +1,45 @@
 # KEBA Wallbox PWA - Entwicklungsleitfaden
 
-## Überblick
+## Overview
 
-Dies ist eine Progressive Web App (PWA) zur Steuerung einer KEBA Wallbox-Ladestation für Elektrofahrzeuge. Die Anwendung bietet Echtzeit-Statusüberwachung, Ladesteuerung und SmartHome-Integrationsfunktionen zur Verwaltung des EV-Ladevorgangs. Sie folgt Material Design 3 Prinzipien mit einem Mobile-First-Ansatz, optimiert für deutsche Nutzer.
+This Progressive Web App (PWA) controls a KEBA Wallbox charging station for electric vehicles. It provides real-time status monitoring, charge control, and SmartHome integration features. The application enables users to monitor charging status, start/stop charging, and configure automated charging based on PV surplus, night schedules, and battery lockout rules. It adheres to Material Design 3 principles with a mobile-first approach, optimized for German users.
 
-**Hauptzweck**: Nutzer können den Wallbox-Ladestatus überwachen, Ladevorgänge starten/stoppen und automatisches Laden basierend auf PV-Überschuss, Nachtzeitplänen und Batteriesperrregeln konfigurieren.
+## User Preferences
 
-## Benutzerpräferenzen
+Preferred communication style: Simple, everyday language.
 
-Bevorzugter Kommunikationsstil: Einfache, alltägliche Sprache.
+## System Architecture
 
-## Systemarchitektur
+### Frontend
 
-### Frontend-Architektur
+The frontend uses React 18+ with TypeScript, Wouter for routing, TanStack Query for state management, and shadcn/ui (Radix UI primitives) for UI components. Styling is managed with Tailwind CSS, customized with design tokens following Material Design 3 principles. The design is mobile-first, responsive, and uses Roboto typography. Core components include `StatusCard`, `ChargingVisualization`, `ToggleListItem`, and `BottomNav`, structured with Atomic Design. PWA features like manifest configuration and Apple Touch Icons are included for a standalone app experience.
 
-**Technologie-Stack**:
-- **Framework**: React 18+ mit TypeScript
-- **Routing**: Wouter (leichtgewichtiges Client-seitiges Routing)
-- **State Management**: TanStack Query (React Query) für Server-State
-- **UI Framework**: shadcn/ui Komponenten basierend auf Radix UI Primitives
-- **Styling**: Tailwind CSS mit benutzerdefinierten Design-Tokens
+### Backend
 
-**Design-System**:
-- Material Design 3 Prinzipien für funktionsorientierte Steuerungsanwendungen
-- Benutzerdefinierte Tailwind-Konfiguration mit CSS-Variablen für Theming
-- Typografie: Roboto Schriftfamilie (400, 500, 700 Schriftgewichte)
-- Mobile-First responsives Design mit 48px minimalen Touch-Targets
-- Durchgehend deutsche Benutzeroberfläche
+The backend is built with Express.js and TypeScript, exposing a RESTful API (`/api` prefix). It features a storage abstraction layer (`IStorage`) with file-based persistence for settings in `data/settings.json`. The backend proxies communication with the KEBA Wallbox and integrates with external SmartHome systems via configurable webhooks.
 
-**Komponenten-Architektur**:
-- Atomic Design mit wiederverwendbaren UI-Komponenten in `client/src/components/ui/`
-- Feature-spezifische Komponenten: `StatusCard`, `ChargingVisualization`, `ToggleListItem`, `BottomNav`
-- Drei Hauptseiten: Status, Steuerung, Einstellungen
-- Bottom-Navigation für mobile-optimiertes Navigationsmuster
+### Data Storage
 
-**PWA-Funktionen**:
-- Manifest-Konfiguration für Standalone-App-Erlebnis
-- Apple Touch Icons und Mobile Web App Meta-Tags
-- Viewport-fit für Safe Area Handling auf mobilen Geräten
+Drizzle ORM is configured for PostgreSQL, with schemas defined in `shared/schema.ts` and migrations via `drizzle-kit` using the Neon Serverless PostgreSQL driver. Current implementation uses file-based persistence, storing `WallboxStatus`, `Settings`, and `ControlState` in `data/settings.json` to ensure persistence across server restarts, especially in Docker environments.
 
-### Backend-Architektur
+### Authentication
 
-**Server-Framework**: Express.js mit TypeScript
+Currently, no authentication is implemented, as the application is designed for single-user local network use. Future authentication would likely be minimal for home automation contexts.
 
-**API-Design**:
-- RESTful API-Muster mit `/api` Präfix für alle Endpunkte
-- Routen registriert über `server/routes.ts`
-- Storage-Abstraktionsschicht über `IStorage` Interface
-- File-basierte Persistenz: Settings werden in `data/settings.json` gespeichert
+### Key Architectural Decisions
 
-**Geplanter Datenfluss**:
-- Frontend kommuniziert mit KEBA Wallbox über Backend-Proxy
-- Backend speichert Benutzereinstellungen und Steuerungsstatus
-- Integration mit externen SmartHome-Systemen über konfigurierbare Webhook-URLs
+1.  **Separation of Concerns**: Shared schema definitions (`shared/`) for type safety across frontend and backend.
+2.  **File-based Persistency**: Settings are saved to `data/settings.json` for persistence across server restarts.
+3.  **Storage Abstraction**: Interface-based storage design allows flexible persistence strategy changes.
+4.  **Mobile-First PWA**: Optimized for touch devices with a standalone app experience.
+5.  **Webhook Integration Pattern**: External SmartHome systems are integrated via HTTP callbacks.
+6.  **Type Safety**: Zod schemas provide runtime validation and TypeScript types.
 
-### Datenspeicher-Lösungen
+## External Dependencies
 
-**Datenbank-Konfiguration**:
-- Drizzle ORM konfiguriert für PostgreSQL
-- Schema definiert in `shared/schema.ts`
-- Migrations-Unterstützung über `drizzle-kit`
-- Neon Serverless PostgreSQL Treiber
-
-**Datenmodelle**:
-- `WallboxStatus`: Echtzeit-Ladezustand (state, plug, power, current, phases)
-- `Settings`: Wallbox-IP und Webhook-URLs für SmartHome-Integrationen
-- `ControlState`: Boolean-Schalter für PV-Überschuss, Nachtladung, Batteriesperrung
-
-**Aktueller Stand**: File-basierte Persistenz implementiert. Einstellungen werden in `data/settings.json` gespeichert und überleben Server-Neustarts. Wichtig für Docker-Deployments, da Container-Neustarts sonst alle Konfigurationen zurücksetzen würden. Die Datei wird automatisch beim ersten Start mit Default-Werten erstellt.
-
-### Authentifizierung und Autorisierung
-
-**Aktueller Stand**: Keine Authentifizierung implementiert
-
-**Design-Überlegung**: Die Anwendung ist für Einzelnutzer-Verwendung im lokalen Netzwerk konzipiert. Zukünftige Authentifizierung wäre wahrscheinlich minimal (Basic Auth oder einfache PIN) im Kontext der Heimautomatisierung.
-
-### Externe Abhängigkeiten
-
-**UI-Komponenten-Bibliothek**:
-- shadcn/ui (New York Stil-Variante)
-- Radix UI Primitives für Barrierefreiheit
-- Lucide React für Icons
-
-**Styling & Build-Tools**:
-- Tailwind CSS mit PostCSS
-- Vite für Build und Entwicklung
-- esbuild für Server-Bundling
-
-**State Management & Datenabruf**:
-- TanStack Query v5 für Server-State-Caching und Synchronisation
-- React Hook Form mit Zod Resolvers für Formularvalidierung
-
-**Datenbank & ORM**:
-- Drizzle ORM für typsichere Datenbank-Abfragen
-- @neondatabase/serverless für PostgreSQL-Verbindung
-- drizzle-zod für Schema-Validierung
-
-**SmartHome-Integration**:
-- Webhook-basierte Integration mit externen Systemen
-- Konfigurierbare URLs für PV-Überschuss, Nachtladung und Batteriesperrung
-- Direkte HTTP-Kommunikation mit KEBA Wallbox UDP/HTTP API
-
-**Entwicklungs-Tools**:
-- Replit-spezifische Plugins für Entwicklungserfahrung
-- TypeScript Strict Mode für Typsicherheit
-- Pfad-Aliase (@/, @shared/, @assets/) für saubere Imports
-
-**Wichtige Architektur-Entscheidungen**:
-
-1. **Separation of Concerns**: Gemeinsame Schema-Definitionen in `shared/` werden von Frontend und Backend für Typsicherheit verwendet
-2. **File-basierte Persistenz**: Einstellungen werden in `data/settings.json` gespeichert statt In-Memory, essentiell für Docker-Container-Neustarts
-3. **Storage-Abstraktion**: Interface-basiertes Storage-Design ermöglicht Wechsel zwischen verschiedenen Persistenz-Strategien ohne Änderung der Business-Logik
-4. **Mobile-First PWA**: Optimiert für Touch-Geräte mit Standalone-App-Erlebnis
-5. **Webhook-Integrationsmuster**: Externe SmartHome-Systeme werden über HTTP-Callbacks statt direkter Integration gesteuert
-6. **Typsicherheit**: Zod-Schemas bieten Laufzeit-Validierung und TypeScript-Typen aus einer einzigen Quelle
-
-## Technische Details
-
-### KEBA Wallbox Kommunikation
-
-**Standard-IP-Adresse**: 192.168.40.16
-
-**Befehlsbestätigung**:
-- Alle Befehle (curr, ena 1, ena 0) warten auf TCH-OK :done Antwort
-- 200ms Pause nach Befehlsempfang
-- Report 2 Verifizierung vor Erfolgsbestätigung
-- HTTP 500 bei Fehlschlägen
-
-**Nachrichten-Validierung**:
-- Reports verwenden ID-Feld (ID="1", ID="2", ID="3") zur Filterung von Broadcasts
-- TCH-OK :done wird zu { "TCH-OK": "done" } geparst vor JSON-Parsing-Versuchen
-
-**Einheiten-Konvertierungen**:
-- E pres ÷10 für Wh
-- P ÷1000000 für kW
-- Max curr/Curr user ÷1000 für A
-
-**3-Phasen-Ladung**: Maximaler Strom 16A (nicht 32A)
-
-### UI-Verhalten
-
-**Steuerungszustände**:
-- PV-Überschuss deaktiviert Ladestrom-Slider komplett
-- Nachtladung setzt automatisch maximalen Strom, erlaubt aber manuelle Änderungen
-- Slider ist deaktiviert wenn: !isPluggedIn, pvSurplus aktiv, oder Mutation läuft
-
-**Slider-Implementierung**:
-- Verwendet Radix UI data-disabled/aria-disabled Attribute
-- Visuell ausgegraut (50% Opazität) wenn deaktiviert
-- Grauer Balken statt grün bei deaktiviertem Zustand
-
-**Status-Anzeige**:
-- Nach Klick auf "Laden starten": Badge zeigt "Warte auf Bestätigung"
-- Wechselt zu "Lädt" sobald power > 0 empfangen wird
-- Keine "Aktualisiert: vor X Sekunden" Zeitstempel-Anzeige
-
-### Aktuelle Funktionen
-
-**Status-Seite**:
-- Ladeleistung-Karte mit Badge-Status
-- Ladestrom-Karte (immer sichtbar, auch ohne Kabel)
-- Geladene Energie
-- Kabelverbindung (kompakte Anzeige)
-- Start/Stop-Button
-
-**Steuerungs-Seite**:
-- PV-Überschuss Toggle
-- Batteriesperrung Toggle
-- Hinweis: Nachtladung wird über Zeitsteuerung in Einstellungen konfiguriert
-- Automatische Status-Synchronisation alle 10 Sekunden mit externen FHEM-Geräten (PV-Überschuss, Batteriesperrung)
-
-**Einstellungen-Seite**:
-- Wallbox IP-Konfiguration (Standard: 192.168.40.16)
-- SmartHome Webhook-URLs (PV-Überschuss, Batteriesperrung)
-  - PV-Überschuss: http://192.168.40.11:8083/fhem (FHEM Automation)
-  - Batteriesperrung: http://192.168.40.11:8083/fhem (S10 Entladen sperren)
-- Nachtladung Zeitsteuerung:
-  - Aktivierungs-Switch
-  - Start- und Endzeit-Konfiguration (Standard: 00:00-05:00)
-  - Unterstützt Zeitfenster über Mitternacht
-
-### FHEM Status-Synchronisation
-
-**Backend-Implementierung (server/routes.ts):**
-- `POST /api/controls/sync`: Fragt externe FHEM-Status ab und aktualisiert ControlState
-- `getFhemDeviceState()`: Parsed HTML-Response (`<div informId="deviceName-state">on/off</div>`)
-- `extractDeviceNameFromUrl()`: Extrahiert Gerätenamen aus konfigurierten URLs mit mehreren Fallback-Methoden
-- Parallele Abfragen der Geräte für bessere Performance
-- Detailliertes Logging für Debugging
-
-**Frontend-Implementierung (client/src/App.tsx):**
-- AppContent Komponente mit useEffect Hook und 10-Sekunden-Interval
-- **Initialer Sync beim App-Start** - läuft sofort nach dem Laden
-- App-weite Synchronisation - läuft auf allen Seiten (Status, Steuerung, Einstellungen, Logs)
-- Hintergrund-Synchronisation ohne Benutzer-Feedback
-- Stille Fehlerbehandlung bei Netzwerkproblemen
-- Automatische UI-Aktualisierung bei externen Status-Änderungen
-
-**Hinweis:** Nachtladung wird nicht mehr über FHEM synchronisiert, sondern läuft komplett intern über Zeitsteuerung.
-
-### Nachtladungs-Scheduler
-
-**Backend-Implementierung (server/routes.ts):**
-- Läuft alle 60 Sekunden automatisch
-- `checkNightChargingSchedule()`: Hauptfunktion des Schedulers
-  - Prüft ob Zeitsteuerung aktiviert ist (nightChargingSchedule.enabled)
-  - Vergleicht aktuelle Uhrzeit mit konfiguriertem Zeitfenster
-  - Sendet `ena 1` bei Erreichen der Startzeit (wenn nightCharging = false)
-  - Sendet `ena 0` bei Erreichen der Endzeit (wenn nightCharging = true)
-  - Sendet `ena 0` wenn Zeitsteuerung deaktiviert wird während Wallbox lädt (kritischer Bugfix)
-- `isTimeInRange()`: Hilfsfunktion für Zeitvergleich
-  - Konvertiert Zeiten in Minuten seit Mitternacht
-  - Unterstützt Zeitfenster über Mitternacht (z.B. 22:00-06:00)
-- Startet automatisch beim Server-Start
-- Detailliertes Logging für alle Scheduler-Aktionen
-
-**Datenmodell:**
-- `nightChargingSchedule`: { enabled: boolean, startTime: string, endTime: string }
-- `controlState.nightCharging`: Zeigt aktuellen Status (lädt gerade wegen Zeitsteuerung?)
-
-## Dokumentation
-
-**README.md**: Benutzerfreundliche Anleitung auf Deutsch mit Screenshots für Endanwender
-- Screenshots in `docs/screenshots/`: status-seite.png, steuerung-seite.png, einstellungen-seite.png
-- Beschreibt alle Funktionen aus Anwendersicht
-- Installation, Nutzung, FAQ, Sicherheitshinweise
-
-## Entwicklung
-
-**Workflow**: `npm run dev` startet Express-Server (Backend) und Vite-Server (Frontend)
-
-**Auto-Restart**: Nach Änderungen wird der Workflow automatisch neu gestartet
-
-**Port**: Frontend bindet an 0.0.0.0:5000
-
-## Letzte Änderungen
-
-**2025-11-09 (Nachmittags)**:
-- **File-basierte Persistenz für Settings**: Kritischer Bugfix für Docker-Deployments
-  - Einstellungen werden jetzt in `data/settings.json` gespeichert statt in RAM
-  - Beim Server-Start werden Einstellungen aus der Datei geladen (falls vorhanden)
-  - Beim Speichern werden Einstellungen in die Datei geschrieben
-  - **Löst das Problem**: Nachtladungs-Scheduler läuft jetzt mit persistierten Einstellungen nach Container-Neustarts
-  - Automatische Erstellung des `data/` Verzeichnisses beim ersten Start
-  - Default-Einstellungen werden automatisch angelegt wenn keine Datei existiert
-  - Logging zeigt: "Einstellungen geladen aus: data/settings.json"
-  - **End-to-End getestet**: Einstellungen bleiben nach Server-Neustart erhalten, Scheduler startet zur konfigurierten Zeit
-
-**2025-11-09 (Vormittags)**:
-- **Interne Nachtladungs-Zeitsteuerung**: Vollständig neue Implementierung
-  - Ersetzt FHEM-Webhook-basierte Nachtladung durch internen minutenbasierten Scheduler
-  - Backend-Scheduler läuft alle 60 Sekunden und prüft Zeitfenster automatisch
-  - Konfigurierbare Zeitfenster in Einstellungen (Standard: 00:00-05:00 Uhr)
-  - Unterstützt Zeitfenster über Mitternacht (z.B. 22:00-06:00)
-  - Automatisches Starten (ena 1) bei Erreichen der Startzeit
-  - Automatisches Stoppen (ena 0) bei Erreichen der Endzeit ODER beim Deaktivieren der Zeitsteuerung
-  - Robuste Implementierung: Stoppt Wallbox auch wenn Zeitsteuerung während aktivem Laden deaktiviert wird
-  - Einstellungs-UI: Switch zum Aktivieren + Time-Inputs für Start/End-Zeit
-  - Steuerungs-Seite: Nachtladungs-Toggle entfernt, da Zeitsteuerung jetzt in Einstellungen konfiguriert wird
-  - Hinweis-Text in Steuerungsseite weist auf neue Konfiguration in Einstellungen hin
-  - Schema-Änderung: nightChargingOnUrl/nightChargingOffUrl entfernt, nightChargingSchedule hinzugefügt
-  - Architektur: Trennung zwischen controlState.nightCharging (aktiver Status) und nightChargingSchedule.enabled (Zeitsteuerung aktiviert)
-  
-- Toggle-Funktionalität für Energie-Anzeige: Wechsel zwischen aktuellem Ladevorgang (E pres) und Gesamtenergie (E total) durch Tippen auf die Kachel
-- Bugfix: Unnötiger curr-Befehl beim Seitenwechsel verhindert - useEffect für Nachtladung reagiert nur noch auf echte Zustandsänderungen, nicht beim ersten Laden der Komponente
-- Default-Werte für SmartHome-URLs: Alle FHEM-Webhook-URLs sind vorausgefüllt (sowohl im Frontend als auch im Backend)
-- FHEM Status-Synchronisation: Automatisches Abrufen externer Schalter-Zustände
-  - Initialer Sync direkt beim App-Start (nicht erst beim Navigieren zur Steuerungs-Seite)
-  - App-weite Synchronisation alle 10 Sekunden auf allen Seiten
-  - Erkennt externe Änderungen an PV-Überschuss und Batteriesperrung
-  - Robuste URL-Parsing mit mehreren Fallback-Methoden
-  - Stille Hintergrund-Synchronisation ohne Benutzer-Störungen
-  - Stellt sicher, dass UI-Elemente (z.B. Ladestrom-Slider) korrekt deaktiviert werden, wenn externe Funktionen aktiv sind
+*   **UI Components**: shadcn/ui (New York style), Radix UI Primitives, Lucide React (icons).
+*   **Styling & Build Tools**: Tailwind CSS with PostCSS, Vite, esbuild.
+*   **State Management & Data Fetching**: TanStack Query v5, React Hook Form with Zod Resolvers.
+*   **Database & ORM**: Drizzle ORM, @neondatabase/serverless (PostgreSQL), drizzle-zod.
+*   **SmartHome Integration**: Webhook-based integration (e.g., FHEM) for PV surplus, battery lockout, and night charging. Direct UDP/HTTP API communication with KEBA Wallbox.
+*   **Development Tools**: Replit-specific plugins, TypeScript Strict Mode, path aliases (`@/`, `@shared/`, `@assets/`).
