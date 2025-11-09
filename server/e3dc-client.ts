@@ -46,15 +46,19 @@ class E3dcClient {
     const connection = this.createConnection();
     
     try {
-      // Nur LiveDataService verwenden - BatteryService hängt
+      console.log('[E3DC] Connecting to:', this.config?.ipAddress);
+      console.log('[E3DC] Portal User:', this.config?.portalUsername);
+      console.log('[E3DC] RSCP Password length:', this.config?.rscpPassword?.length);
+      
+      // Test: Ist die Connection überhaupt authentifiziert?
+      const isConfigured = connection.isConfigured();
+      console.log('[E3DC] Connection configured:', isConfigured);
+
       const liveDataService = new DefaultLiveDataService(connection);
+      console.log('[E3DC] Calling readPowerState()...');
       const powerState = await liveDataService.readPowerState();
 
-      console.log('[E3DC] PowerState:', JSON.stringify(powerState, null, 2));
-
-      // WICHTIG: Das E3DC gibt aktuell nur 0-Werte zurück
-      // Das deutet auf ein Berechtigungs- oder Konfigurationsproblem hin
-      // Der Webhook-Fallback funktioniert bereits perfekt!
+      console.log('[E3DC] PowerState received:', JSON.stringify(powerState, null, 2));
       
       return {
         soc: powerState.batteryChargingLevel,
@@ -63,8 +67,13 @@ class E3dcClient {
         maxDischargePower: 0,
         dischargeLocked: false,
       };
+    } catch (error) {
+      console.error('[E3DC] Error in getBatteryStatus:', error);
+      throw error;
     } finally {
+      console.log('[E3DC] Disconnecting...');
       await connection.disconnect();
+      console.log('[E3DC] Disconnected');
     }
   }
 
