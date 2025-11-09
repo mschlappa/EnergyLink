@@ -638,11 +638,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (currentState.nightCharging) {
           log("info", "system", `Nachtladung: Zeitsteuerung deaktiviert - stoppe Laden`);
           
+          // Stoppe die Wallbox (kann fehlschlagen)
           if (settings?.wallboxIp) {
-            await sendUdpCommand(settings.wallboxIp, "ena 0");
+            try {
+              await sendUdpCommand(settings.wallboxIp, "ena 0");
+            } catch (error) {
+              log("error", "system", "Nachtladung: Fehler beim Stoppen der Wallbox (Scheduler deaktiviert)", error instanceof Error ? error.message : String(error));
+            }
           }
           
-          storage.saveControlState({ ...currentState, nightCharging: false });
+          // Deaktiviere Batterie-Entladesperre beim Deaktivieren des Schedulers (immer)
+          if (settings?.batteryLockOffUrl) {
+            log("info", "system", `Nachtladung: Deaktiviere Batterie-Entladesperre (Scheduler deaktiviert)`);
+            await callSmartHomeUrl(settings.batteryLockOffUrl);
+          }
+          
+          storage.saveControlState({ ...currentState, nightCharging: false, batteryLock: false });
         }
         return;
       }
@@ -652,19 +663,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isInTimeWindow && !currentState.nightCharging) {
         log("info", "system", `Nachtladung: Zeitfenster erreicht (${schedule.startTime}-${schedule.endTime}) - starte Laden`);
         
-        if (settings?.wallboxIp) {
-          await sendUdpCommand(settings.wallboxIp, "ena 1");
+        // Aktiviere Batterie-Entladesperre beim Start der Nachtladung (ZUERST!)
+        if (settings?.batteryLockOnUrl) {
+          log("info", "system", `Nachtladung: Aktiviere Batterie-Entladesperre`);
+          await callSmartHomeUrl(settings.batteryLockOnUrl);
         }
         
-        storage.saveControlState({ ...currentState, nightCharging: true });
+        // Dann starte die Wallbox (kann fehlschlagen, aber Batterie-Sperre ist bereits aktiv)
+        if (settings?.wallboxIp) {
+          try {
+            await sendUdpCommand(settings.wallboxIp, "ena 1");
+          } catch (error) {
+            log("error", "system", "Nachtladung: Fehler beim Starten der Wallbox (Batterie-Sperre ist aktiv)", error instanceof Error ? error.message : String(error));
+          }
+        }
+        
+        storage.saveControlState({ ...currentState, nightCharging: true, batteryLock: true });
       } else if (!isInTimeWindow && currentState.nightCharging) {
         log("info", "system", `Nachtladung: Zeitfenster beendet - stoppe Laden`);
         
+        // Stoppe die Wallbox (kann fehlschlagen)
         if (settings?.wallboxIp) {
-          await sendUdpCommand(settings.wallboxIp, "ena 0");
+          try {
+            await sendUdpCommand(settings.wallboxIp, "ena 0");
+          } catch (error) {
+            log("error", "system", "Nachtladung: Fehler beim Stoppen der Wallbox", error instanceof Error ? error.message : String(error));
+          }
         }
         
-        storage.saveControlState({ ...currentState, nightCharging: false });
+        // Deaktiviere Batterie-Entladesperre beim Ende der Nachtladung (immer)
+        if (settings?.batteryLockOffUrl) {
+          log("info", "system", `Nachtladung: Deaktiviere Batterie-Entladesperre`);
+          await callSmartHomeUrl(settings.batteryLockOffUrl);
+        }
+        
+        storage.saveControlState({ ...currentState, nightCharging: false, batteryLock: false });
       }
     } catch (error) {
       log("error", "system", "Fehler beim Nachtladungs-Scheduler", String(error));
