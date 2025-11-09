@@ -165,16 +165,19 @@ Bevorzugter Kommunikationsstil: Einfache, alltägliche Sprache.
 
 **Steuerungs-Seite**:
 - PV-Überschuss Toggle
-- Nachtladung Toggle
 - Batteriesperrung Toggle
-- Automatische Status-Synchronisation alle 10 Sekunden mit externen FHEM-Geräten
+- Hinweis: Nachtladung wird über Zeitsteuerung in Einstellungen konfiguriert
+- Automatische Status-Synchronisation alle 10 Sekunden mit externen FHEM-Geräten (PV-Überschuss, Batteriesperrung)
 
 **Einstellungen-Seite**:
 - Wallbox IP-Konfiguration (Standard: 192.168.40.16)
-- SmartHome Webhook-URLs (PV-Überschuss, Nachtladung, Batteriesperrung)
+- SmartHome Webhook-URLs (PV-Überschuss, Batteriesperrung)
   - PV-Überschuss: http://192.168.40.11:8083/fhem (FHEM Automation)
-  - Nachtladung: http://192.168.40.11:8083/fhem (Steckdose steuern)
   - Batteriesperrung: http://192.168.40.11:8083/fhem (S10 Entladen sperren)
+- Nachtladung Zeitsteuerung:
+  - Aktivierungs-Switch
+  - Start- und Endzeit-Konfiguration (Standard: 00:00-05:00)
+  - Unterstützt Zeitfenster über Mitternacht
 
 ### FHEM Status-Synchronisation
 
@@ -182,7 +185,7 @@ Bevorzugter Kommunikationsstil: Einfache, alltägliche Sprache.
 - `POST /api/controls/sync`: Fragt externe FHEM-Status ab und aktualisiert ControlState
 - `getFhemDeviceState()`: Parsed HTML-Response (`<div informId="deviceName-state">on/off</div>`)
 - `extractDeviceNameFromUrl()`: Extrahiert Gerätenamen aus konfigurierten URLs mit mehreren Fallback-Methoden
-- Parallele Abfragen aller drei Geräte für bessere Performance
+- Parallele Abfragen der Geräte für bessere Performance
 - Detailliertes Logging für Debugging
 
 **Frontend-Implementierung (client/src/App.tsx):**
@@ -192,6 +195,28 @@ Bevorzugter Kommunikationsstil: Einfache, alltägliche Sprache.
 - Hintergrund-Synchronisation ohne Benutzer-Feedback
 - Stille Fehlerbehandlung bei Netzwerkproblemen
 - Automatische UI-Aktualisierung bei externen Status-Änderungen
+
+**Hinweis:** Nachtladung wird nicht mehr über FHEM synchronisiert, sondern läuft komplett intern über Zeitsteuerung.
+
+### Nachtladungs-Scheduler
+
+**Backend-Implementierung (server/routes.ts):**
+- Läuft alle 60 Sekunden automatisch
+- `checkNightChargingSchedule()`: Hauptfunktion des Schedulers
+  - Prüft ob Zeitsteuerung aktiviert ist (nightChargingSchedule.enabled)
+  - Vergleicht aktuelle Uhrzeit mit konfiguriertem Zeitfenster
+  - Sendet `ena 1` bei Erreichen der Startzeit (wenn nightCharging = false)
+  - Sendet `ena 0` bei Erreichen der Endzeit (wenn nightCharging = true)
+  - Sendet `ena 0` wenn Zeitsteuerung deaktiviert wird während Wallbox lädt (kritischer Bugfix)
+- `isTimeInRange()`: Hilfsfunktion für Zeitvergleich
+  - Konvertiert Zeiten in Minuten seit Mitternacht
+  - Unterstützt Zeitfenster über Mitternacht (z.B. 22:00-06:00)
+- Startet automatisch beim Server-Start
+- Detailliertes Logging für alle Scheduler-Aktionen
+
+**Datenmodell:**
+- `nightChargingSchedule`: { enabled: boolean, startTime: string, endTime: string }
+- `controlState.nightCharging`: Zeigt aktuellen Status (lädt gerade wegen Zeitsteuerung?)
 
 ## Dokumentation
 
@@ -211,13 +236,27 @@ Bevorzugter Kommunikationsstil: Einfache, alltägliche Sprache.
 ## Letzte Änderungen
 
 **2025-11-09**:
+- **Interne Nachtladungs-Zeitsteuerung**: Vollständig neue Implementierung
+  - Ersetzt FHEM-Webhook-basierte Nachtladung durch internen minutenbasierten Scheduler
+  - Backend-Scheduler läuft alle 60 Sekunden und prüft Zeitfenster automatisch
+  - Konfigurierbare Zeitfenster in Einstellungen (Standard: 00:00-05:00 Uhr)
+  - Unterstützt Zeitfenster über Mitternacht (z.B. 22:00-06:00)
+  - Automatisches Starten (ena 1) bei Erreichen der Startzeit
+  - Automatisches Stoppen (ena 0) bei Erreichen der Endzeit ODER beim Deaktivieren der Zeitsteuerung
+  - Robuste Implementierung: Stoppt Wallbox auch wenn Zeitsteuerung während aktivem Laden deaktiviert wird
+  - Einstellungs-UI: Switch zum Aktivieren + Time-Inputs für Start/End-Zeit
+  - Steuerungs-Seite: Nachtladungs-Toggle entfernt, da Zeitsteuerung jetzt in Einstellungen konfiguriert wird
+  - Hinweis-Text in Steuerungsseite weist auf neue Konfiguration in Einstellungen hin
+  - Schema-Änderung: nightChargingOnUrl/nightChargingOffUrl entfernt, nightChargingSchedule hinzugefügt
+  - Architektur: Trennung zwischen controlState.nightCharging (aktiver Status) und nightChargingSchedule.enabled (Zeitsteuerung aktiviert)
+  
 - Toggle-Funktionalität für Energie-Anzeige: Wechsel zwischen aktuellem Ladevorgang (E pres) und Gesamtenergie (E total) durch Tippen auf die Kachel
 - Bugfix: Unnötiger curr-Befehl beim Seitenwechsel verhindert - useEffect für Nachtladung reagiert nur noch auf echte Zustandsänderungen, nicht beim ersten Laden der Komponente
 - Default-Werte für SmartHome-URLs: Alle FHEM-Webhook-URLs sind vorausgefüllt (sowohl im Frontend als auch im Backend)
 - FHEM Status-Synchronisation: Automatisches Abrufen externer Schalter-Zustände
   - Initialer Sync direkt beim App-Start (nicht erst beim Navigieren zur Steuerungs-Seite)
   - App-weite Synchronisation alle 10 Sekunden auf allen Seiten
-  - Erkennt externe Änderungen an PV-Überschuss, Nachtladung und Batteriesperrung
+  - Erkennt externe Änderungen an PV-Überschuss und Batteriesperrung
   - Robuste URL-Parsing mit mehreren Fallback-Methoden
   - Stille Hintergrund-Synchronisation ohne Benutzer-Störungen
   - Stellt sicher, dass UI-Elemente (z.B. Ladestrom-Slider) korrekt deaktiviert werden, wenn externe Funktionen aktiv sind
