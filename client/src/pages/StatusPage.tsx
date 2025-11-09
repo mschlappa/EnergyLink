@@ -199,7 +199,7 @@ export default function StatusPage() {
     ].filter(Boolean).length;
 
     if (phases === 3 && activePhases === 2) {
-      return "3-phasig angeschlossen - lädt mit 2 Phasen";
+      return "3-phasig - lädt mit 2 Phasen";
     }
     
     return `${phases}-phasig`;
