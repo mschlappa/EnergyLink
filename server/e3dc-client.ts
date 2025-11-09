@@ -49,16 +49,23 @@ class E3dcClient {
       console.log('[E3DC] Connecting to:', this.config?.ipAddress);
       console.log('[E3DC] Portal User:', this.config?.portalUsername);
       console.log('[E3DC] RSCP Password length:', this.config?.rscpPassword?.length);
-      
-      // Test: Ist die Connection überhaupt authentifiziert?
-      const isConfigured = connection.isConfigured();
-      console.log('[E3DC] Connection configured:', isConfigured);
 
       const liveDataService = new DefaultLiveDataService(connection);
       console.log('[E3DC] Calling readPowerState()...');
       const powerState = await liveDataService.readPowerState();
 
-      console.log('[E3DC] PowerState received:', JSON.stringify(powerState, null, 2));
+      console.log('[E3DC] PowerState received - FULL DUMP:');
+      console.log('[E3DC] All keys:', Object.keys(powerState));
+      console.log('[E3DC] batteryChargingLevel:', powerState.batteryChargingLevel);
+      console.log('[E3DC] batteryDelivery:', powerState.batteryDelivery);
+      console.log('[E3DC] Full object:', JSON.stringify(powerState, null, 2));
+      
+      // Prüfe ob alle Werte 0 sind (deutet auf Auth-Problem hin)
+      const allZero = Object.values(powerState).every(v => typeof v === 'number' && v === 0);
+      if (allZero) {
+        console.warn('[E3DC] WARNING: All values are 0 - possible authentication issue!');
+        console.warn('[E3DC] This library does NOT validate credentials properly!');
+      }
       
       return {
         soc: powerState.batteryChargingLevel,
