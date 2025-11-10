@@ -693,7 +693,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const timezone = settings?.timezone || "Europe/Berlin";
       const currentTime = getCurrentTimeInTimezone(timezone);
       
-      log("info", "system", `Nachtladungs-Scheduler läuft - Aktuelle Zeit: ${currentTime}, Zeitsteuerung aktiviert: ${schedule?.enabled}, Zeitfenster: ${schedule?.startTime}-${schedule?.endTime}`);
+      log("debug", "system", `Nachtladungs-Scheduler läuft - Aktuelle Zeit: ${currentTime}, Zeitsteuerung aktiviert: ${schedule?.enabled}, Zeitfenster: ${schedule?.startTime}-${schedule?.endTime}`);
       
       // Wenn Scheduler deaktiviert wurde, aber Wallbox noch lädt -> stoppen
       if (!schedule?.enabled) {
