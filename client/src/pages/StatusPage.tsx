@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Battery, Plug, Zap, AlertCircle, Gauge, Sun, Moon, BatteryWarning } from "lucide-react";
+import { Battery, Plug, Zap, AlertCircle, Gauge, Sun, Moon, BatteryX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
@@ -231,9 +231,9 @@ export default function StatusPage() {
     }
     if (controlState?.batteryLock) {
       icons.push({
-        icon: BatteryWarning,
+        icon: BatteryX,
         label: "Batterie-Entladesperre aktiv",
-        color: "text-orange-500 dark:text-orange-400"
+        color: "text-red-500 dark:text-red-400"
       });
     }
     return icons;
