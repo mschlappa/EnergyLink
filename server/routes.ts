@@ -751,8 +751,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const schedule = settings?.nightChargingSchedule;
       const currentState = storage.getControlState();
       
-      const timezone = settings?.timezone || "Europe/Berlin";
-      const currentTime = getCurrentTimeInTimezone(timezone);
+      const currentTime = getCurrentTimeInTimezone("Europe/Berlin");
       
       log("debug", "system", `Nachtladungs-Scheduler läuft - Aktuelle Zeit: ${currentTime}, Zeitsteuerung aktiviert: ${schedule?.enabled}, Zeitfenster: ${schedule?.startTime}-${schedule?.endTime}`);
       

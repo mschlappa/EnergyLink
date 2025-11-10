@@ -29,14 +29,15 @@ Currently, no authentication is implemented, as the application is designed for 
 ### Key Architectural Decisions
 
 1.  **Separation of Concerns**: Shared schema definitions (`shared/`) for type safety across frontend and backend.
-2.  **File-based Persistency**: Settings are saved to `data/settings.json` for persistence across server restarts.
+2.  **File-based Persistency**: Settings are saved to `data/settings.json` and control state to `data/control-state.json` for persistence across server restarts.
 3.  **Storage Abstraction**: Interface-based storage design allows flexible persistence strategy changes with backward compatibility via default value backfilling.
 4.  **Mobile-First PWA**: Optimized for touch devices with a standalone app experience.
 5.  **Webhook Integration Pattern**: External SmartHome systems are integrated via HTTP callbacks (fallback when E3DC disabled).
 6.  **E3DC CLI Integration**: Battery control via e3dcset CLI tool with configurable command strings, supporting discharge lock and grid charging.
 7.  **Type Safety**: Zod schemas provide runtime validation and TypeScript types.
-8.  **Security-First Logging**: CLI outputs are sanitized to prevent credential leakage - development mode shows sanitized previews (200 chars), production mode shows only metadata.
+8.  **Security-First Logging**: CLI outputs are sanitized to prevent credential leakage - development mode shows sanitized previews (200 chars), production mode shows only metadata. HTTP request logs are controlled by log level setting (only appear in debug mode).
 9.  **Visual Status Feedback**: Icon-based status indicators on the main screen provide immediate visual feedback for active SmartHome features, improving user awareness.
+10. **Fixed Timezone**: Application uses Europe/Berlin (MEZ/MESZ) timezone for all time-based operations including night charging scheduler. No user configuration required.
 
 ## External Dependencies
 

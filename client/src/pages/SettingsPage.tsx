@@ -49,7 +49,6 @@ export default function SettingsPage() {
         startTime: "00:00",
         endTime: "05:00",
       },
-      timezone: "Europe/Berlin",
       e3dc: {
         enabled: false,
         dischargeLockEnableCommand: "",
@@ -242,31 +241,6 @@ export default function SettingsPage() {
                 />
                 <p className="text-xs text-muted-foreground">
                   IP-Adresse Ihrer KEBA Wallbox im lokalen Netzwerk
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="timezone" className="text-sm font-medium">
-                  Zeitzone
-                </Label>
-                <Select
-                  value={form.watch("timezone") || "Europe/Berlin"}
-                  onValueChange={(value) => form.setValue("timezone", value)}
-                >
-                  <SelectTrigger className="h-12" data-testid="select-timezone">
-                    <SelectValue placeholder="Zeitzone auswählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Europe/Berlin">Europa/Berlin (MEZ/MESZ)</SelectItem>
-                    <SelectItem value="Europe/Vienna">Europa/Wien (MEZ/MESZ)</SelectItem>
-                    <SelectItem value="Europe/Zurich">Europa/Zürich (MEZ/MESZ)</SelectItem>
-                    <SelectItem value="Europe/London">Europa/London (GMT/BST)</SelectItem>
-                    <SelectItem value="Europe/Paris">Europa/Paris (MEZ/MESZ)</SelectItem>
-                    <SelectItem value="UTC">UTC (Koordinierte Weltzeit)</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  Zeitzone für die Nachtladungs-Zeitsteuerung
                 </p>
               </div>
 

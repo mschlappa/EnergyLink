@@ -68,7 +68,6 @@ export class MemStorage implements IStorage {
         startTime: "00:00",
         endTime: "05:00",
       },
-      timezone: "Europe/Berlin",
     };
     
     // Speichere Defaults in Datei
