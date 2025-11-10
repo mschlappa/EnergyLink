@@ -277,17 +277,19 @@ export default function StatusPage() {
 
             <Card data-testid="card-current-control">
               <CardHeader className="pb-3">
-                <div className="flex items-center gap-2">
-                  <Gauge className="w-5 h-5 text-primary" />
-                  <CardTitle className="text-base font-semibold">
-                    Ladestrom {currentAmpere}A
-                  </CardTitle>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Gauge className="w-5 h-5 text-primary" />
+                    <CardTitle className="text-base font-semibold">
+                      Ladestrom {currentAmpere}A
+                    </CardTitle>
+                  </div>
+                  {controlState?.pvSurplus && (
+                    <span className="text-sm text-muted-foreground" data-testid="text-pv-surplus-active">
+                      PV-Überschuss aktiv
+                    </span>
+                  )}
                 </div>
-                {controlState?.pvSurplus && (
-                  <CardDescription>
-                    PV-Überschuss aktiv
-                  </CardDescription>
-                )}
               </CardHeader>
               <CardContent className="space-y-4">
                 <Slider
@@ -304,11 +306,6 @@ export default function StatusPage() {
                   <span>6A</span>
                   <span>{phases === 3 ? "16A" : "32A"}</span>
                 </div>
-                {controlState?.pvSurplus && (
-                  <p className="text-xs text-muted-foreground" data-testid="text-pv-surplus-info">
-                    Der Ladestrom wird automatisch an den PV-Überschuss angepasst.
-                  </p>
-                )}
               </CardContent>
             </Card>
 
