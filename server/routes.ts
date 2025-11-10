@@ -723,7 +723,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           }
           
-          storage.saveControlState({ ...currentState, nightCharging: false, batteryLock: false });
+          storage.saveControlState({ ...currentState, nightCharging: false, batteryLock: false, gridCharging: false });
         }
         return;
       }
@@ -738,10 +738,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await lockBatteryDischarge(settings);
         
         // Aktiviere Netzstrom-Laden falls konfiguriert
+        let gridChargingActive = false;
         if (e3dcClient.isConfigured() && e3dcClient.isGridChargeDuringNightChargingEnabled()) {
           try {
             log("info", "system", `Nachtladung: Aktiviere Netzstrom-Laden`);
             await e3dcClient.enableGridCharge();
+            gridChargingActive = true;
           } catch (error) {
             log("error", "system", "Fehler beim Aktivieren des Netzstrom-Ladens", error instanceof Error ? error.message : String(error));
           }
@@ -756,7 +758,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
         
-        storage.saveControlState({ ...currentState, nightCharging: true, batteryLock: true });
+        storage.saveControlState({ ...currentState, nightCharging: true, batteryLock: true, gridCharging: gridChargingActive });
       } else if (!isInTimeWindow && currentState.nightCharging) {
         log("info", "system", `Nachtladung: Zeitfenster beendet - stoppe Laden`);
         
@@ -783,7 +785,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
         
-        storage.saveControlState({ ...currentState, nightCharging: false, batteryLock: false });
+        storage.saveControlState({ ...currentState, nightCharging: false, batteryLock: false, gridCharging: false });
       }
     } catch (error) {
       log("error", "system", "Fehler beim Nachtladungs-Scheduler", String(error));

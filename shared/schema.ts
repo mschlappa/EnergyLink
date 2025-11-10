@@ -52,6 +52,7 @@ export const controlStateSchema = z.object({
   pvSurplus: z.boolean(),
   nightCharging: z.boolean(),
   batteryLock: z.boolean(),
+  gridCharging: z.boolean(),
 });
 
 export type ControlState = z.infer<typeof controlStateSchema>;

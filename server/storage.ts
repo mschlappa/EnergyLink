@@ -21,6 +21,7 @@ export class MemStorage implements IStorage {
     pvSurplus: false,
     nightCharging: false,
     batteryLock: false,
+    gridCharging: false,
   };
   private logs: LogEntry[] = [];
   private logSettings: LogSettings = {
