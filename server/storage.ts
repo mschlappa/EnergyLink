@@ -16,6 +16,7 @@ export interface IStorage {
 
 export class MemStorage implements IStorage {
   private settingsFilePath = join(process.cwd(), "data", "settings.json");
+  private controlStateFilePath = join(process.cwd(), "data", "control-state.json");
   private settings: Settings | null = null;
   private controlState: ControlState = {
     pvSurplus: false,
@@ -38,6 +39,9 @@ export class MemStorage implements IStorage {
 
     // Lade Settings aus Datei oder verwende Defaults
     this.settings = this.loadSettingsFromFile();
+    
+    // Lade Control State aus Datei
+    this.controlState = this.loadControlStateFromFile();
   }
 
   private loadSettingsFromFile(): Settings {
@@ -81,6 +85,44 @@ export class MemStorage implements IStorage {
     }
   }
 
+  private loadControlStateFromFile(): ControlState {
+    if (existsSync(this.controlStateFilePath)) {
+      try {
+        const data = readFileSync(this.controlStateFilePath, "utf-8");
+        const loaded = JSON.parse(data);
+        console.log("[Storage] Control State geladen aus:", this.controlStateFilePath);
+        
+        // Stelle sicher, dass alle Felder vorhanden sind (Backward Compatibility)
+        return {
+          pvSurplus: false,
+          nightCharging: false,
+          batteryLock: false,
+          gridCharging: false,
+          ...loaded,
+        };
+      } catch (error) {
+        console.error("[Storage] Fehler beim Laden des Control States:", error);
+      }
+    }
+
+    // Default Control State
+    return {
+      pvSurplus: false,
+      nightCharging: false,
+      batteryLock: false,
+      gridCharging: false,
+    };
+  }
+
+  private saveControlStateToFile(state: ControlState): void {
+    try {
+      writeFileSync(this.controlStateFilePath, JSON.stringify(state, null, 2), "utf-8");
+      console.log("[Storage] Control State gespeichert in:", this.controlStateFilePath);
+    } catch (error) {
+      console.error("[Storage] Fehler beim Speichern des Control States:", error);
+    }
+  }
+
   getSettings(): Settings | null {
     return this.settings;
   }
@@ -103,6 +145,7 @@ export class MemStorage implements IStorage {
 
   saveControlState(state: ControlState): void {
     this.controlState = state;
+    this.saveControlStateToFile(state);
   }
 
   getLogs(): LogEntry[] {
