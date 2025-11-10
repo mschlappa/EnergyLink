@@ -1,6 +1,18 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LucideIcon } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+interface StatusIcon {
+  icon: LucideIcon;
+  label: string;
+  color?: string;
+}
 
 interface StatusCardProps {
   icon: LucideIcon;
@@ -12,6 +24,7 @@ interface StatusCardProps {
   additionalInfo?: string;
   compact?: boolean;
   onClick?: () => void;
+  statusIcons?: StatusIcon[];
 }
 
 export default function StatusCard({
@@ -24,6 +37,7 @@ export default function StatusCard({
   additionalInfo,
   compact = false,
   onClick,
+  statusIcons = [],
 }: StatusCardProps) {
   const getStatusColor = () => {
     switch (status) {
@@ -66,6 +80,30 @@ export default function StatusCard({
             <span className="text-base font-semibold">
               {title}
             </span>
+            {statusIcons.length > 0 && (
+              <TooltipProvider>
+                <div className="flex items-center gap-1.5 ml-1">
+                  {statusIcons.map((statusIcon, index) => {
+                    const StatusIconComponent = statusIcon.icon;
+                    return (
+                      <Tooltip key={index}>
+                        <TooltipTrigger asChild>
+                          <div>
+                            <StatusIconComponent 
+                              className={`w-4 h-4 ${statusIcon.color || 'text-muted-foreground'}`}
+                              data-testid={`icon-${statusIcon.label.toLowerCase().replace(/\s/g, '-')}`}
+                            />
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{statusIcon.label}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  })}
+                </div>
+              </TooltipProvider>
+            )}
           </div>
           <div className="flex items-baseline gap-2">
             <span

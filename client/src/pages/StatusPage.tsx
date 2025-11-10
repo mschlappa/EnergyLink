@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Battery, Plug, Zap, AlertCircle, Gauge } from "lucide-react";
+import { Battery, Plug, Zap, AlertCircle, Gauge, Sun, Moon, BatteryWarning } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
@@ -213,6 +213,32 @@ export default function StatusPage() {
   const energy = showTotalEnergy ? energyTotal : energySession;
   const phases = status?.phases || 0;
 
+  const getStatusIcons = () => {
+    const icons = [];
+    if (controlState?.pvSurplus) {
+      icons.push({
+        icon: Sun,
+        label: "PV Überschussladung aktiv",
+        color: "text-yellow-500 dark:text-yellow-400"
+      });
+    }
+    if (controlState?.nightCharging) {
+      icons.push({
+        icon: Moon,
+        label: "Nachtladung aktiv",
+        color: "text-blue-500 dark:text-blue-400"
+      });
+    }
+    if (controlState?.batteryLock) {
+      icons.push({
+        icon: BatteryWarning,
+        label: "Batterie-Entladesperre aktiv",
+        color: "text-orange-500 dark:text-orange-400"
+      });
+    }
+    return icons;
+  };
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto pb-24 pt-6">
@@ -239,6 +265,7 @@ export default function StatusPage() {
               status={isCharging ? "charging" : "stopped"}
               badge={isLoading ? "..." : waitingForConfirmation ? "Warte auf Bestätigung" : getStatusBadge(status?.state || 0)}
               additionalInfo={getPhaseInfo()}
+              statusIcons={getStatusIcons()}
             />
 
             <Card data-testid="card-current-control">
