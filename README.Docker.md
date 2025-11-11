@@ -1,4 +1,4 @@
-# KEBA Wallbox PWA - Docker Deployment
+# EnergyLink - Docker Deployment
 
 ## Voraussetzungen
 - Docker und Docker Compose installiert

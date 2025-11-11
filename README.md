@@ -1,6 +1,6 @@
-# KEBA Wallbox Steuerungs-App
+# EnergyLink
 
-Eine moderne Progressive Web App (PWA) zur komfortablen Steuerung Ihrer KEBA Wallbox Ladestation für Elektrofahrzeuge.
+Eine moderne Progressive Web App (PWA) zur intelligenten Steuerung Ihrer KEBA Wallbox Ladestation für Elektrofahrzeuge mit SmartHome-Integration.
 
 _Version 1.0 – November 2025_
 
