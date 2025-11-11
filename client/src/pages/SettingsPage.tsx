@@ -41,6 +41,7 @@ export default function SettingsPage() {
     resolver: zodResolver(settingsSchema),
     defaultValues: {
       wallboxIp: "192.168.40.16",
+      e3dcIp: "",
       pvSurplusOnUrl: "",
       pvSurplusOffUrl: "",
       nightChargingSchedule: {
@@ -171,6 +172,23 @@ export default function SettingsPage() {
               />
               <p className="text-xs text-muted-foreground">
                 IP-Adresse Ihrer KEBA P20 Wallbox im lokalen Netzwerk
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="e3dc-ip" className="text-base font-medium">
+                E3DC IP-Adresse (Modbus TCP)
+              </Label>
+              <Input
+                id="e3dc-ip"
+                type="text"
+                placeholder="192.168.40.17"
+                {...form.register("e3dcIp")}
+                className="h-12"
+                data-testid="input-e3dc-ip"
+              />
+              <p className="text-xs text-muted-foreground">
+                IP-Adresse Ihres E3DC S10 für Modbus TCP-Zugriff (Port 502)
               </p>
             </div>
 

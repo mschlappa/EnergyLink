@@ -47,7 +47,7 @@ export default function E3dcPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-bold" data-testid="text-pv-power">
                 {(mockE3dcData.pvPower / 1000).toFixed(1)} kW
               </div>
             </CardContent>
@@ -63,8 +63,8 @@ export default function E3dcPage() {
             </CardHeader>
             <CardContent>
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold">{mockE3dcData.batterySoc}%</span>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-2xl font-bold" data-testid="text-battery-soc">{mockE3dcData.batterySoc}%</span>
+                <span className="text-sm text-muted-foreground" data-testid="text-battery-power">
                   {mockE3dcData.batteryPower < 0 ? (
                     <TrendingDown className="inline w-4 h-4 text-orange-500" />
                   ) : (
@@ -85,7 +85,7 @@ export default function E3dcPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-bold" data-testid="text-house-power">
                 {(mockE3dcData.housePower / 1000).toFixed(1)} kW
               </div>
             </CardContent>
@@ -101,10 +101,10 @@ export default function E3dcPage() {
             </CardHeader>
             <CardContent>
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold">
+                <span className="text-2xl font-bold" data-testid="text-grid-power">
                   {Math.abs(mockE3dcData.gridPower / 1000).toFixed(1)} kW
                 </span>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-muted-foreground" data-testid="text-grid-direction">
                   {mockE3dcData.gridPower < 0 ? "Einspeisung" : "Bezug"}
                 </span>
               </div>
@@ -120,11 +120,11 @@ export default function E3dcPage() {
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Autarkie</span>
-              <span className="text-lg font-semibold">{mockE3dcData.autarky}%</span>
+              <span className="text-lg font-semibold" data-testid="text-autarky">{mockE3dcData.autarky}%</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Eigenverbrauch</span>
-              <span className="text-lg font-semibold">{mockE3dcData.selfConsumption}%</span>
+              <span className="text-lg font-semibold" data-testid="text-self-consumption">{mockE3dcData.selfConsumption}%</span>
             </div>
           </CardContent>
         </Card>

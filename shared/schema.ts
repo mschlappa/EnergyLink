@@ -39,6 +39,7 @@ export type E3dcConfig = z.infer<typeof e3dcConfigSchema>;
 
 export const settingsSchema = z.object({
   wallboxIp: z.string(),
+  e3dcIp: z.string().optional(),
   pvSurplusOnUrl: z.string().optional(),
   pvSurplusOffUrl: z.string().optional(),
   nightChargingSchedule: nightChargingScheduleSchema.optional(),
