@@ -12,6 +12,8 @@ This Progressive Web App (PWA) controls a KEBA Wallbox charging station for elec
 
 Preferred communication style: Simple, everyday language.
 
+**Deployment Target:** Local operation (home server/Raspberry Pi/Docker) in private network. Application communicates via HTTP in development; HTTPS not required for local-only deployment but recommended if accessible from internet.
+
 ## System Architecture
 
 ### Frontend
