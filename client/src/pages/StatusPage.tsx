@@ -32,7 +32,16 @@ export default function StatusPage() {
   const [showTotalEnergy, setShowTotalEnergy] = useState(false);
   const [showDetailsDrawer, setShowDetailsDrawer] = useState(false);
   const [showCableDrawer, setShowCableDrawer] = useState(false);
-  const [lastPlugChange, setLastPlugChange] = useState<Date | null>(null);
+  const [lastPlugChange, setLastPlugChange] = useState<Date | null>(() => {
+    // Beim Initialisieren aus LocalStorage lesen
+    try {
+      const stored = localStorage.getItem('lastPlugChange');
+      return stored ? new Date(stored) : null;
+    } catch {
+      // Fallback wenn LocalStorage nicht verfügbar (z.B. Privacy Mode)
+      return null;
+    }
+  });
   const previousPlugStatusRef = useRef<number | undefined>(undefined);
 
   const { data: status, isLoading, error } = useQuery<WallboxStatus>({
@@ -93,7 +102,14 @@ export default function StatusPage() {
     if (status?.plug !== undefined) {
       // Nur tracken wenn sich der Status tatsächlich geändert hat
       if (previousPlugStatusRef.current !== undefined && previousPlugStatusRef.current !== status.plug) {
-        setLastPlugChange(new Date());
+        const now = new Date();
+        setLastPlugChange(now);
+        // In LocalStorage speichern
+        try {
+          localStorage.setItem('lastPlugChange', now.toISOString());
+        } catch {
+          // Ignorieren wenn LocalStorage nicht verfügbar
+        }
       }
       previousPlugStatusRef.current = status.plug;
     }
