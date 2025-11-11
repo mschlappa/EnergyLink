@@ -1,5 +1,6 @@
 import ModbusRTU from "modbus-serial";
 import type { E3dcLiveData } from "@shared/schema";
+import { storage } from "./storage";
 
 /**
  * E3DC S10 Modbus TCP Register Mapping (Simple Mode)
@@ -91,9 +92,6 @@ export class E3dcModbusService {
       const low = data.data[0];   // LSW (Low Significant Word) zuerst
       const high = data.data[1];  // MSW (Most Significant Word) danach
       
-      // DEBUG: RAW-Register-Werte ausgeben
-      console.log(`[E3DC Modbus DEBUG] Register ${registerAddress}: low=${low} (0x${low.toString(16)}), high=${high} (0x${high.toString(16)})`);
-      
       // INT32 aus 2x UINT16 zusammensetzen (Little-Endian: LSW first)
       const uint32 = (high << 16) | low;
       
@@ -113,10 +111,6 @@ export class E3dcModbusService {
   private async readUint16(registerAddress: number): Promise<number> {
     try {
       const data = await this.client.readHoldingRegisters(registerAddress, 1);
-      
-      // DEBUG: RAW-Register-Wert ausgeben
-      console.log(`[E3DC Modbus DEBUG] Register ${registerAddress}: value=${data.data[0]} (0x${data.data[0].toString(16)})`);
-      
       return data.data[0];
     } catch (error) {
       // Bei Lese-Fehler: Connection als ungültig markieren
@@ -150,17 +144,11 @@ export class E3dcModbusService {
       const autarky = (autarkySelfCons >> 8) & 0xFF;
       const selfConsumption = autarkySelfCons & 0xFF;
 
-      // DEBUG: RAW-Werte ausgeben
-      console.log(`[E3DC Modbus DEBUG] RAW-Werte:
-        PV: ${pvPower} W
-        Batterie: ${batteryPower} W
-        Haus: ${housePower} W
-        Netz: ${gridPower} W
-        Batterie SOC: ${batterySoc}%
-        Autarkie/Eigenverbrauch Register: ${autarkySelfCons} (0x${autarkySelfCons.toString(16)})
-        Autarkie: ${autarky}%
-        Eigenverbrauch: ${selfConsumption}%
-        Wallbox (KEBA UDP): ${kebaWallboxPower} W`);
+      // DEBUG: Kompakte einzeilige Ausgabe bei LogLevel DEBUG
+      const logSettings = storage.getLogSettings();
+      if (logSettings.level === "debug") {
+        console.log(`[E3DC Modbus] PV: ${pvPower} W, Batterie: ${batteryPower} W (SOC: ${batterySoc}%), Haus: ${housePower} W, Netz: ${gridPower} W, Autarkie: ${autarky}%, Eigenverbrauch: ${selfConsumption}%, Wallbox: ${kebaWallboxPower} W`);
+      }
 
       return {
         pvPower,
