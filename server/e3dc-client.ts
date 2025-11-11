@@ -87,7 +87,7 @@ class E3dcClient {
 
   private async executeCommand(command: string | undefined, commandName: string): Promise<void> {
     if (!command || command.trim() === '') {
-      console.log(`[E3DC] ${commandName} - Kein Befehl konfiguriert, überspringe`);
+      log('info', 'system', `E3DC: ${commandName} - Kein Befehl konfiguriert, überspringe`);
       return;
     }
 
@@ -97,7 +97,7 @@ class E3dcClient {
     
     if (this.lastCommandTime > 0 && timeSinceLastCommand < this.RATE_LIMIT_MS) {
       const waitTime = this.RATE_LIMIT_MS - timeSinceLastCommand;
-      console.log(`[E3DC] Rate Limiting: Warte ${(waitTime / 1000).toFixed(1)}s vor nächstem Befehl`);
+      log('info', 'system', `E3DC: Rate Limiting - Warte ${(waitTime / 1000).toFixed(1)}s vor nächstem Befehl`);
       await new Promise(resolve => setTimeout(resolve, waitTime));
     }
 
@@ -105,36 +105,27 @@ class E3dcClient {
 
     try {
       // Command ohne Sanitization loggen (Credentials sind in externer Datei)
-      console.log(`[E3DC] Führe aus: ${commandName}`);
-      console.log(`[E3DC] Befehl: ${command}`);
       log('info', 'system', `E3DC: ${commandName}`, `Befehl: ${command}`);
       
       const { stdout, stderr } = await execAsync(command);
       
       if (stdout) {
         const sanitized = this.sanitizeOutput(stdout, command, sensitiveValues);
-        console.log(`[E3DC] ${commandName} - Ausgabe (${stdout.length} Zeichen):`);
-        console.log(sanitized);
-        log('info', 'system', `E3DC: ${commandName} - Ausgabe`, sanitized);
+        log('info', 'system', `E3DC: ${commandName} - Ausgabe (${stdout.length} Zeichen)`, sanitized);
       }
       
       if (stderr) {
         const sanitized = this.sanitizeOutput(stderr, command, sensitiveValues);
-        console.error(`[E3DC] ${commandName} - Fehler-Ausgabe (${stderr.length} Zeichen):`);
-        console.error(sanitized);
-        log('warning', 'system', `E3DC: ${commandName} - Fehler-Ausgabe`, sanitized);
+        log('warning', 'system', `E3DC: ${commandName} - Fehler-Ausgabe (${stderr.length} Zeichen)`, sanitized);
       }
       
       // Zeitpunkt des letzten Befehls aktualisieren
       this.lastCommandTime = Date.now();
-      console.log(`[E3DC] ${commandName} erfolgreich ausgeführt`);
       log('info', 'system', `E3DC: ${commandName} erfolgreich ausgeführt`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       const sanitizedError = this.sanitizeOutput(errorMessage, command, sensitiveValues);
       
-      console.error(`[E3DC] ${commandName} fehlgeschlagen:`);
-      console.error(sanitizedError);
       log('error', 'system', `E3DC: ${commandName} fehlgeschlagen`, sanitizedError);
       throw new Error(`Failed to execute ${commandName}`);
     }
