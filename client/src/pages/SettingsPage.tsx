@@ -169,7 +169,7 @@ export default function SettingsPage() {
                 data-testid="input-wallbox-ip"
               />
               <p className="text-xs text-muted-foreground">
-                IP-Adresse Ihrer KEBA Wallbox im lokalen Netzwerk
+                IP-Adresse Ihrer KEBA P20 Wallbox im lokalen Netzwerk
               </p>
             </div>
 
