@@ -111,12 +111,12 @@ class E3dcClient {
       
       if (stdout) {
         const sanitized = this.sanitizeOutput(stdout, command, sensitiveValues);
-        log('info', 'system', `E3DC: ${commandName} - Ausgabe (${stdout.length} Zeichen)`, sanitized);
+        log('info', 'system', `E3DC: ${commandName} - Ausgabe`, sanitized);
       }
       
       if (stderr) {
         const sanitized = this.sanitizeOutput(stderr, command, sensitiveValues);
-        log('warning', 'system', `E3DC: ${commandName} - Fehler-Ausgabe (${stderr.length} Zeichen)`, sanitized);
+        log('warning', 'system', `E3DC: ${commandName} - Fehler-Ausgabe`, sanitized);
       }
       
       // Zeitpunkt des letzten Befehls aktualisieren
