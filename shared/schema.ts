@@ -93,3 +93,17 @@ export const e3dcBatteryStatusSchema = z.object({
 });
 
 export type E3dcBatteryStatus = z.infer<typeof e3dcBatteryStatusSchema>;
+
+export const e3dcLiveDataSchema = z.object({
+  pvPower: z.number(),
+  batteryPower: z.number(),
+  batterySoc: z.number(),
+  housePower: z.number(),
+  gridPower: z.number(),
+  wallboxPower: z.number(),
+  autarky: z.number(),
+  selfConsumption: z.number(),
+  timestamp: z.string(),
+});
+
+export type E3dcLiveData = z.infer<typeof e3dcLiveDataSchema>;

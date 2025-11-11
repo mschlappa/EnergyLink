@@ -2,8 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { createSocket, type Socket } from "dgram";
-import { settingsSchema, controlStateSchema, logSettingsSchema, type LogLevel, e3dcBatteryStatusSchema, type ControlState } from "@shared/schema";
+import { settingsSchema, controlStateSchema, logSettingsSchema, type LogLevel, e3dcBatteryStatusSchema, type ControlState, e3dcLiveDataSchema } from "@shared/schema";
 import { e3dcClient } from "./e3dc-client";
+import { getE3dcModbusService } from "./e3dc-modbus";
 
 const UDP_PORT = 7090;
 const UDP_TIMEOUT = 6000;
@@ -523,6 +524,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/wallbox/plug-tracking", (req, res) => {
     const tracking = storage.getPlugStatusTracking();
     res.json(tracking);
+  });
+
+  app.get("/api/e3dc/live-data", async (req, res) => {
+    try {
+      const settings = storage.getSettings();
+      
+      // Prüfe ob E3DC IP konfiguriert ist
+      if (!settings?.e3dcIp) {
+        return res.status(400).json({ 
+          error: "E3DC IP-Adresse nicht konfiguriert. Bitte in den Einstellungen eine IP-Adresse angeben." 
+        });
+      }
+
+      // Hole Wallbox-Leistung aus aktuellem Status
+      let wallboxPower = 0;
+      try {
+        const wallboxStatus = storage.getWallboxStatus();
+        wallboxPower = wallboxStatus?.power || 0;
+      } catch (error) {
+        log("warning", "system", "Konnte Wallbox-Leistung nicht abrufen, verwende 0W", error instanceof Error ? error.message : String(error));
+      }
+
+      // Verbinde zum E3DC Modbus und lese Live-Daten
+      const e3dcService = getE3dcModbusService();
+      
+      try {
+        // Stelle Verbindung her (wiederverwendet bestehende Verbindung wenn bereits verbunden)
+        await e3dcService.connect(settings.e3dcIp);
+        
+        // Lese Live-Daten mit aktueller Wallbox-Leistung
+        const liveData = await e3dcService.readLiveData(wallboxPower);
+        
+        log("debug", "system", `E3DC Live-Daten erfolgreich abgerufen: PV=${liveData.pvPower}W, Batterie=${liveData.batteryPower}W, Haus=${liveData.housePower}W`);
+        
+        res.json(liveData);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        log("error", "system", "Fehler beim Abrufen der E3DC Live-Daten", errorMessage);
+        
+        res.status(500).json({ 
+          error: `E3DC Modbus-Fehler: ${errorMessage}` 
+        });
+      }
+    } catch (error) {
+      log("error", "system", "Unerwarteter Fehler bei E3DC Live-Daten Abfrage", error instanceof Error ? error.message : String(error));
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   app.post("/api/controls", async (req, res) => {
