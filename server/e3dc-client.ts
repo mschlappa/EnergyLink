@@ -6,6 +6,8 @@ const execAsync = promisify(exec);
 
 class E3dcClient {
   private config: E3dcConfig | null = null;
+  private lastCommandTime: number = 0;
+  private readonly RATE_LIMIT_MS = 5000; // 5 Sekunden zwischen Befehlen
 
   configure(config: E3dcConfig): void {
     if (!config.enabled) {
@@ -75,6 +77,16 @@ class E3dcClient {
       return;
     }
 
+    // Rate Limiting: Warten wenn letzter Befehl weniger als 5 Sekunden her ist
+    const now = Date.now();
+    const timeSinceLastCommand = now - this.lastCommandTime;
+    
+    if (this.lastCommandTime > 0 && timeSinceLastCommand < this.RATE_LIMIT_MS) {
+      const waitTime = this.RATE_LIMIT_MS - timeSinceLastCommand;
+      console.log(`[E3DC] Rate Limiting: Warte ${(waitTime / 1000).toFixed(1)}s vor nächstem Befehl`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+
     const isDevelopment = process.env.NODE_ENV !== 'production';
     const sensitiveValues = this.getSensitiveValues();
 
@@ -101,6 +113,8 @@ class E3dcClient {
         }
       }
       
+      // Zeitpunkt des letzten Befehls aktualisieren
+      this.lastCommandTime = Date.now();
       console.log(`[E3DC] ${commandName} erfolgreich ausgeführt`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
