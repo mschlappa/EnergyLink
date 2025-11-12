@@ -1,7 +1,7 @@
 {
   "wallboxIp": "192.168.40.16",
   "wallboxIpBackup": "127.0.0.1",
-  "e3dcIp": "192.168.40.50:502",
+  "e3dcIp": "192.168.40.200:502",
   "pvSurplusOnUrl": "http://192.168.40.11:8083/fhem?detail=autoWallboxPV&cmd.autoWallboxPV=set%20autoWallboxPV%20on",
   "pvSurplusOffUrl": "http://192.168.40.11:8083/fhem?detail=autoWallboxPV&cmd.autoWallboxPV=set%20autoWallboxPV%20off",
   "pvSurplusOnUrlBackup": "http://127.0.0.1:8083/fhem?cmd.autoWallboxPV=on",
