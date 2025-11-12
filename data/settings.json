@@ -1,11 +1,11 @@
 {
-  "wallboxIp": "127.0.0.1",
-  "wallboxIpBackup": "192.168.40.16",
-  "e3dcIp": "127.0.0.1:5502",
-  "pvSurplusOnUrl": "http://127.0.0.1:8083/fhem?cmd.autoWallboxPV=on",
-  "pvSurplusOffUrl": "http://127.0.0.1:8083/fhem?cmd.autoWallboxPV=off",
-  "pvSurplusOnUrlBackup": "http://192.168.40.11:8083/fhem?detail=autoWallboxPV&cmd.autoWallboxPV=set%20autoWallboxPV%20on",
-  "pvSurplusOffUrlBackup": "http://192.168.40.11:8083/fhem?detail=autoWallboxPV&cmd.autoWallboxPV=set%20autoWallboxPV%20off",
+  "wallboxIp": "192.168.40.16",
+  "wallboxIpBackup": "127.0.0.1",
+  "e3dcIp": "192.168.40.50:502",
+  "pvSurplusOnUrl": "http://192.168.40.11:8083/fhem?detail=autoWallboxPV&cmd.autoWallboxPV=set%20autoWallboxPV%20on",
+  "pvSurplusOffUrl": "http://192.168.40.11:8083/fhem?detail=autoWallboxPV&cmd.autoWallboxPV=set%20autoWallboxPV%20off",
+  "pvSurplusOnUrlBackup": "http://127.0.0.1:8083/fhem?cmd.autoWallboxPV=on",
+  "pvSurplusOffUrlBackup": "http://127.0.0.1:8083/fhem?cmd.autoWallboxPV=off",
   "nightChargingSchedule": {
     "enabled": true,
     "startTime": "19:33",
