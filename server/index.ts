@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { storage } from "./storage";
+import { startUnifiedMock, stopUnifiedMock } from "./unified-mock";
 
 const app = express();
 
@@ -52,6 +53,19 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Auto-Start Mock-Server wenn DEMO_AUTOSTART=true oder demoMode aktiviert ist
+  const shouldStartMock = process.env.DEMO_AUTOSTART === 'true' || storage.getSettings()?.demoMode;
+  
+  if (shouldStartMock) {
+    try {
+      await startUnifiedMock();
+      console.log('[Server] ✅ Unified Mock Server automatisch gestartet (Demo-Modus)');
+    } catch (error) {
+      console.error('[Server] ⚠️ Fehler beim Starten des Mock-Servers:', error);
+      console.error('[Server] Fortsetzung ohne Mock-Server...');
+    }
+  }
+  
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -83,4 +97,18 @@ app.use((req, res, next) => {
   }, () => {
     log(`serving on port ${port}`);
   });
+  
+  // Graceful Shutdown für Mock-Server (falls aktiv)
+  const shutdown = async () => {
+    console.log('\n🛑 [Server] Graceful Shutdown wird durchgeführt...');
+    try {
+      await stopUnifiedMock();
+    } catch (error) {
+      console.error('[Server] Fehler beim Stoppen des Mock-Servers:', error);
+    }
+    process.exit(0);
+  };
+  
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
 })();

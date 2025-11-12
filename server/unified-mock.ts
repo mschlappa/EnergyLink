@@ -398,57 +398,103 @@ modbusServer.on('initialized', () => {
 });
 
 // =============================================================================
-// SERVER STARTUP
+// SERVER LIFECYCLE (Start / Stop)
 // =============================================================================
 
-console.log('\n╔════════════════════════════════════════════════════════════╗');
-console.log('║      EnergyLink Unified Mock Server (Demo-Modus)          ║');
-console.log('╚════════════════════════════════════════════════════════════╝\n');
+let isRunning = false;
 
-// UDP Server starten
-udpServer.bind(WALLBOX_UDP_PORT, HOST);
+export async function startUnifiedMock(): Promise<void> {
+  if (isRunning) {
+    console.log('[Unified-Mock] Server läuft bereits');
+    return;
+  }
+  
+  console.log('\n╔════════════════════════════════════════════════════════════╗');
+  console.log('║      EnergyLink Unified Mock Server (Demo-Modus)          ║');
+  console.log('╚════════════════════════════════════════════════════════════╝\n');
 
-// HTTP Server starten
-fhemServer.listen(FHEM_HTTP_PORT, HOST);
+  // UDP Server starten
+  await new Promise<void>((resolve, reject) => {
+    udpServer.once('error', reject);
+    udpServer.bind(WALLBOX_UDP_PORT, HOST, () => {
+      udpServer.removeListener('error', reject);
+      resolve();
+    });
+  });
 
-// Modbus Server ist bereits gestartet (automatisch bei Erstellung)
+  // HTTP Server starten
+  await new Promise<void>((resolve, reject) => {
+    fhemServer.once('error', reject);
+    fhemServer.listen(FHEM_HTTP_PORT, HOST, () => {
+      fhemServer.removeListener('error', reject);
+      resolve();
+    });
+  });
 
-console.log('\n📋 Demo-Modus Konfiguration:');
-console.log('   1. Wallbox IP: 127.0.0.1 (UDP Port 7090)');
-console.log('   2. E3DC IP: 127.0.0.1:5502 (Modbus TCP)');
-console.log('   3. FHEM Base-URL: http://127.0.0.1:8083/fhem');
-console.log('   4. Demo-Modus in Einstellungen aktivieren\n');
+  // Modbus Server ist bereits beim Import gestartet (automatisch bei Erstellung)
 
-console.log('🔄 State-Synchronisation aktiv:');
-console.log('   - Wallbox-Leistung → E3DC Grid-Berechnung');
-console.log('   - PV-Überschuss → Battery Charging/Discharging');
-console.log('   - FHEM Device States (autoWallboxPV, etc.)');
-console.log('   - Realistische Tageszeit-Simulation\n');
+  console.log('\n📋 Demo-Modus Konfiguration:');
+  console.log('   1. Wallbox IP: 127.0.0.1 (UDP Port 7090)');
+  console.log('   2. E3DC IP: 127.0.0.1:5502 (Modbus TCP)');
+  console.log('   3. FHEM Base-URL: http://127.0.0.1:8083/fhem');
+  console.log('   4. Demo-Modus in Einstellungen aktivieren\n');
 
-// =============================================================================
-// GRACEFUL SHUTDOWN
-// =============================================================================
+  console.log('🔄 State-Synchronisation aktiv:');
+  console.log('   - Wallbox-Leistung → E3DC Grid-Berechnung');
+  console.log('   - PV-Überschuss → Battery Charging/Discharging');
+  console.log('   - FHEM Device States (autoWallboxPV, etc.)');
+  console.log('   - Realistische Tageszeit-Simulation\n');
+  
+  isRunning = true;
+}
 
-const shutdown = () => {
+export async function stopUnifiedMock(): Promise<void> {
+  if (!isRunning) {
+    return;
+  }
+  
   console.log('\n🛑 [Unified-Mock] Server wird heruntergefahren...');
   
-  udpServer.close(() => {
-    console.log('   ✅ Wallbox UDP Server gestoppt');
-  });
+  await Promise.all([
+    new Promise<void>((resolve) => {
+      udpServer.close(() => {
+        console.log('   ✅ Wallbox UDP Server gestoppt');
+        resolve();
+      });
+    }),
+    new Promise<void>((resolve) => {
+      fhemServer.close(() => {
+        console.log('   ✅ FHEM HTTP Server gestoppt');
+        resolve();
+      });
+    }),
+    new Promise<void>((resolve) => {
+      modbusServer.close(() => {
+        console.log('   ✅ E3DC Modbus Server gestoppt');
+        resolve();
+      });
+    })
+  ]);
   
-  fhemServer.close(() => {
-    console.log('   ✅ FHEM HTTP Server gestoppt');
-  });
-  
-  modbusServer.close(() => {
-    console.log('   ✅ E3DC Modbus Server gestoppt');
-    process.exit(0);
-  });
-};
+  isRunning = false;
+}
 
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);
+// Wenn direkt ausgeführt (nicht importiert), starte automatisch
+if (import.meta.url === `file://${process.argv[1]}`) {
+  startUnifiedMock().catch(err => {
+    console.error('Fehler beim Starten des Mock-Servers:', err);
+    process.exit(1);
+  });
+  
+  // Graceful Shutdown bei direkter Ausführung
+  const shutdown = async () => {
+    await stopUnifiedMock();
+    process.exit(0);
+  };
+  
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
+}
 
 // Export für programmatischen Zugriff
-// Exportiere die Singleton-Instanzen
 export { wallboxMockService, e3dcMockService };
