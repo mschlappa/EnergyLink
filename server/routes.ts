@@ -81,19 +81,20 @@ function parseKebaResponse(response: string): Record<string, any> {
 
 function isValidReportResponse(command: string, parsed: Record<string, any>): boolean {
   // Prüfe ob die Antwort zum erwarteten Report passt
+  // WICHTIG: parsed.ID ist eine Number (parseKebaResponse konvertiert numerische Werte)
   if (command === "report 1") {
     // Report 1 muss ID=1 und Product/Serial/Firmware enthalten
-    return parsed.ID === "1" && (parsed.Product || parsed.Serial || parsed.Firmware);
+    return (parsed.ID === 1 || String(parsed.ID) === "1") && (parsed.Product || parsed.Serial || parsed.Firmware);
   }
   
   if (command === "report 2") {
     // Report 2 muss ID=2 und State/Plug/"Max curr" enthalten
-    return parsed.ID === "2" && (parsed.State !== undefined || parsed.Plug !== undefined || parsed["Max curr"] !== undefined);
+    return (parsed.ID === 2 || String(parsed.ID) === "2") && (parsed.State !== undefined || parsed.Plug !== undefined || parsed["Max curr"] !== undefined);
   }
   
   if (command === "report 3") {
     // Report 3 muss ID=3 und U1/I1/P enthalten
-    return parsed.ID === "3" && (parsed.U1 !== undefined || parsed.I1 !== undefined || parsed.P !== undefined);
+    return (parsed.ID === 3 || String(parsed.ID) === "3") && (parsed.U1 !== undefined || parsed.I1 !== undefined || parsed.P !== undefined);
   }
   
   // Für ena/curr Befehle: Akzeptiere nur TCH-OK :done
