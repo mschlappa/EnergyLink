@@ -26,9 +26,6 @@ const E3DC_MODBUS_PORT = 5502;
 const FHEM_HTTP_PORT = 8083;
 const HOST = '0.0.0.0';
 
-// Verwende Singleton-Instanzen für konsistenten State
-wallboxMockService.initializeDemo();
-
 // Hilfsfunktion: Lade Control State
 const loadControlState = async (): Promise<ControlState | null> => {
   try {
@@ -397,6 +394,9 @@ export async function startUnifiedMock(): Promise<void> {
   console.log('\n╔════════════════════════════════════════════════════════════╗');
   console.log('║      EnergyLink Unified Mock Server (Demo-Modus)          ║');
   console.log('╚════════════════════════════════════════════════════════════╝\n');
+
+  // Wallbox-Mock initialisieren (nur bei Start, nicht bei Import)
+  wallboxMockService.initializeDemo();
 
   // UDP Server starten
   await new Promise<void>((resolve, reject) => {
