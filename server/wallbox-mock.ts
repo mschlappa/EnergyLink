@@ -368,9 +368,3 @@ export class WallboxMockService {
 
 // Singleton-Instanz
 export const wallboxMockService = new WallboxMockService();
-
-// Initialisiere mit Demo-Werten
-wallboxMockService.initializeDemo();
-
-// Debug: Zeige initialisierten Wert
-console.log('[DEBUG] Wallbox-Mock initialisiert - E total:', wallboxMockService.getReport3()['E total'], 'Wh =', wallboxMockService.getReport3()['E total'] / 1000, 'kWh');
