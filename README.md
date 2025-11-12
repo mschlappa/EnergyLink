@@ -89,24 +89,41 @@ Live-Daten Ihrer PV-Anlage und Batteriespeicher
 </tr>
 </table>
 
-### Einstellungen & Logs
+### Batterie-Steuerung & Einstellungen
 
 <table>
 <tr>
+<td width="50%">
+<strong>E3DC Batterie-Steuerung</strong><br>
+Intelligente Steuerung Ihrer Hausbatterie während des Ladevorgangs
+<br><br>
+<img src="docs/screenshots/e3dc-batterie-steuerung.png" alt="Batterie-Steuerung" width="100%">
+</td>
 <td width="50%">
 <strong>Einstellungen</strong><br>
 Konfigurieren Sie Wallbox, E3DC und SmartHome-Verbindungen
 <br><br>
 <img src="docs/screenshots/einstellungen-seite.png" alt="Einstellungen-Seite" width="100%">
 </td>
+</tr>
+</table>
+
+### Protokollierung
+
+<table>
+<tr>
 <td width="50%">
 <strong>Logs & Diagnose</strong><br>
 Detaillierte Kommunikationsprotokolle zur Fehlersuche
 <br><br>
 <img src="docs/screenshots/logs-seite.png" alt="Logs-Seite" width="100%">
 </td>
+<td width="50%">
+<!-- Platzhalter für zukünftige Screenshots -->
+</td>
 </tr>
 </table>
+
 
 ## Voraussetzungen
 
