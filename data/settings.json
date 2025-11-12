@@ -1,24 +1,24 @@
 {
-  "wallboxIp": "192.168.40.16",
-  "wallboxIpBackup": "127.0.0.1",
-  "e3dcIp": "192.168.40.200:502",
-  "pvSurplusOnUrl": "http://192.168.40.11:8083/fhem?detail=autoWallboxPV&cmd.autoWallboxPV=set%20autoWallboxPV%20on",
-  "pvSurplusOffUrl": "http://192.168.40.11:8083/fhem?detail=autoWallboxPV&cmd.autoWallboxPV=set%20autoWallboxPV%20off",
-  "pvSurplusOnUrlBackup": "http://127.0.0.1:8083/fhem?cmd.autoWallboxPV=on",
-  "pvSurplusOffUrlBackup": "http://127.0.0.1:8083/fhem?cmd.autoWallboxPV=off",
+  "wallboxIp": "127.0.0.1",
+  "wallboxIpBackup": "",
+  "e3dcIp": "127.0.0.1:5502",
+  "pvSurplusOnUrl": "http://127.0.0.1:8083/fhem?cmd.autoWallboxPV=on",
+  "pvSurplusOffUrl": "http://127.0.0.1:8083/fhem?cmd.autoWallboxPV=off",
+  "pvSurplusOnUrlBackup": "",
+  "pvSurplusOffUrlBackup": "",
   "nightChargingSchedule": {
-    "enabled": true,
+    "enabled": false,
     "startTime": "00:00",
     "endTime": "05:00"
   },
   "e3dc": {
     "enabled": true,
-    "prefix": "/opt/keba-wallbox/e3dcset -p /opt/keba-wallbox/e3dcset.config",
+    "prefix": "e3dcset -p e3dcset.config",
     "dischargeLockEnableCommand": "-d 1",
     "dischargeLockDisableCommand": "-a",
     "gridChargeEnableCommand": "-c 2500 -e 6000",
     "gridChargeDisableCommand": "-a -e 0",
     "gridChargeDuringNightCharging": false
   },
-  "demoMode": false
+  "demoMode": true
 }
