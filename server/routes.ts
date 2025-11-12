@@ -154,10 +154,19 @@ function initWallboxSocket(): void {
     log("error", "wallbox", "UDP-Socket-Fehler", error instanceof Error ? error.message : String(error));
   });
 
-  // Binde an Port 7090 - notwendig damit Wallbox Antworten an diesen Port zurücksendet
-  wallboxSocket.bind(UDP_PORT, () => {
-    log("info", "system", `Wallbox UDP-Client initialisiert auf Port ${UDP_PORT}`);
-  });
+  // Im Demo-Modus: Nutze ephemeral port (kein bind) um Port-Konflikt mit Mock-Server zu vermeiden
+  // Im Production-Modus: Binde an Port 7090 für echte Wallbox-Kommunikation
+  const isDemoMode = process.env.DEMO_AUTOSTART === 'true' || storage.getSettings()?.demoMode;
+  
+  if (isDemoMode) {
+    // Kein bind() - UDP-Client nutzt ephemeral port vom OS
+    log("info", "system", "Wallbox UDP-Client initialisiert (ephemeral port für Demo-Modus)");
+  } else {
+    // Binde an Port 7090 - notwendig damit echte Wallbox Antworten an diesen Port zurücksendet
+    wallboxSocket.bind(UDP_PORT, () => {
+      log("info", "system", `Wallbox UDP-Client initialisiert auf Port ${UDP_PORT}`);
+    });
+  }
 }
 
 function processCommandQueue(): void {
