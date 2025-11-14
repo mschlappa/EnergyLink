@@ -1,0 +1,219 @@
+Skip to content
+
+Files
+Commands
+.config
+.git
+.github
+attached_assets
+generated_images
+image_1763135601802.jpeg
+image_1763138236426.jpeg
+KeContact_P20_UDP_ProgrGuide_en_02_1762609543308.pdf
+client
+public
+apple-touch-icon.png
+favicon-32.png
+icon-192.png
+icon-512.png
+src
+components
+examples
+ui
+BottomNav.tsx
+ChargingVisualization.tsx
+EnergyFlowDiagram.tsx
+StatusCard.tsx
+ToggleListItem.tsx
+hooks
+lib
+pages
+E3dcPage.tsx
+LogsPage.tsx
+not-found.tsx
+SettingsPage.tsx
+StatusPage.tsx
+App.tsx
+index.css
+main.tsx
+index.html
+data
+charging-context.json
+control-state.json
+e3dc-control-state.json
+plug-tracking.json
+settings.json
+dist
+docs
+screenshots
+charging-strategy-scheduled.jpeg
+charging-strategy-surplus.jpeg
+e3dc-batterie-steuerung.png
+e3dc-seite.png
+logs-seite.png
+settings-demo.jpeg
+status-seite.png
+strategy-parameters.jpeg
+public
+apple-touch-icon.png
+favicon-32.png
+icon-192.png
+icon-512.png
+manifest.json
+server
+shared
+.dockerignore
+.gitignore
+components.json
+DEPLOYMENT.md
+design_guidelines.md
+docker-compose.yml
+Dockerfile
+drizzle.config.ts
+postcss.config.js
+README-AUTOSCALE.md
+README.Docker.md
+README.md
+replit.md
+tailwind.config.ts
+tsconfig.json
+vite.config.ts
+Packager files
+.upm
+node_modules
+package-lock.json
+package.json
+Config files
+.replit
+Time
+Deployment
+Source
+Log
+2025-11-14 22:14:19.12
+930e7b63
+User
+[21:14:19,127] [INFO] [system] Strategy Check: max_without_battery
+2025-11-14 22:16:19.62
+930e7b63
+User
+[21:16:19,535] [INFO] [system] Ladung gestoppt
+2025-11-14 22:16:19.62
+930e7b63
+User
+[21:16:19,626] [INFO] [system] [ChargingStrategyController] Wallbox gestoppt, Strategie auf "off" gesetzt
+2025-11-14 22:16:34.53
+930e7b63
+User
+[21:16:34,537] [DEBUG] [storage] Charging Context gespeichert in: /home/runner/workspace/data/charging-context.json
+2025-11-14 22:16:34.53
+930e7b63
+User
+[21:16:34,536] [INFO] [system] [ChargingStrategyController] Strategie auf "off" → Wallbox wird gestoppt
+2025-11-14 22:16:34.53
+930e7b63
+User
+[21:16:34,538] [INFO] [system] [ChargingStrategyController] Wallbox gestoppt, Strategie auf "off" gesetzt
+2025-11-14 22:16:34.53
+930e7b63
+User
+[21:16:34,537] [INFO] [system] Ladung gestoppt
+2025-11-14 22:16:34.53
+930e7b63
+User
+[21:16:34,538] [DEBUG] [storage] Einstellungen gespeichert in: /home/runner/workspace/data/settings.json
+2025-11-14 22:16:34.53
+930e7b63
+User
+[21:16:34,538] [DEBUG] [storage] Charging Context gespeichert in: /home/runner/workspace/data/charging-context.json
+2025-11-14 22:16:49.53
+930e7b63
+User
+[21:16:49,537] [INFO] [system] [ChargingStrategyController] Strategie auf "off" → Wallbox wird gestoppt
+2025-11-14 22:16:49.53
+930e7b63
+User
+[21:16:49,538] [DEBUG] [storage] Charging Context gespeichert in: /home/runner/workspace/data/charging-context.json
+2025-11-14 22:16:49.53
+930e7b63
+User
+[21:16:49,539] [DEBUG] [storage] Charging Context gespeichert in: /home/runner/workspace/data/charging-context.json
+2025-11-14 22:16:49.53
+930e7b63
+User
+[21:16:49,538] [INFO] [system] Ladung gestoppt
+2025-11-14 22:16:49.53
+930e7b63
+User
+[21:16:49,539] [DEBUG] [storage] Einstellungen gespeichert in: /home/runner/workspace/data/settings.json
+2025-11-14 22:16:49.62
+930e7b63
+User
+[21:16:49,539] [INFO] [system] [ChargingStrategyController] Wallbox gestoppt, Strategie auf "off" gesetzt
+2025-11-14 22:17:04.54
+930e7b63
+User
+[21:17:04,540] [INFO] [system] [ChargingStrategyController] Strategie auf "off" → Wallbox wird gestoppt
+2025-11-14 22:17:04.54
+930e7b63
+User
+[21:17:04,542] [DEBUG] [storage] Charging Context gespeichert in: /home/runner/workspace/data/charging-context.json
+2025-11-14 22:17:04.54
+930e7b63
+User
+[21:17:04,542] [INFO] [system] Ladung gestoppt
+2025-11-14 22:17:04.72
+930e7b63
+User
+[21:17:04,726] [DEBUG] [storage] Charging Context gespeichert in: /home/runner/workspace/data/charging-context.json
+2025-11-14 22:17:04.72
+930e7b63
+User
+[21:17:04,726] [DEBUG] [storage] Einstellungen gespeichert in: /home/runner/workspace/data/settings.json
+2025-11-14 22:17:04.72
+930e7b63
+User
+[21:17:04,726] [INFO] [system] [ChargingStrategyController] Wallbox gestoppt, Strategie auf "off" gesetzt
+2025-11-14 22:17:19.54
+930e7b63
+User
+[21:17:19,542] [INFO] [system] [ChargingStrategyController] Strategie auf "off" → Wallbox wird gestoppt
+2025-11-14 22:17:19.54
+930e7b63
+User
+[21:17:19,543] [DEBUG] [storage] Charging Context gespeichert in: /home/runner/workspace/data/charging-context.json
+2025-11-14 22:17:19.54
+930e7b63
+User
+[21:17:19,544] [INFO] [system] [ChargingStrategyController] Wallbox gestoppt, Strategie auf "off" gesetzt
+2025-11-14 22:17:19.54
+930e7b63
+User
+[21:17:19,544] [DEBUG] [storage] Charging Context gespeichert in: /home/runner/workspace/data/charging-context.json
+2025-11-14 22:17:19.54
+930e7b63
+User
+[21:17:19,543] [INFO] [system] Ladung gestoppt
+2025-11-14 22:17:19.54
+930e7b63
+User
+[21:17:19,544] [DEBUG] [storage] Einstellungen gespeichert in: /home/runner/workspace/data/settings.json
+2025-11-14 22:17:34.54
+930e7b63
+User
+[21:17:34,544] [INFO] [system] [ChargingStrategyController] Strategie auf "off" → Wallbox wird gestoppt
+2025-11-14 22:17:34.54
+930e7b63
+User
+[21:17:34,546] [DEBUG] [storage] Einstellungen gespeichert in: /home/runner/workspace/data/settings.json
+2025-11-14 22:17:34.54
+930e7b63
+User
+[21:17:34,546] [INFO] [system] Ladung gestoppt
+2025-11-14 22:17:34.54
+930e7b63
+User
+[21:17:34,546] [DEBUG] [storage] Charging Context gespeichert in: /home/runner/workspace/data/charging-context.json
+2025-11-14 22:17:34.54
+930e7b63
+User
+[21:17:34,546] [DEBUG] [storage] Charging Context gespeichert in: /home/runner/workspace/data/charging-context.json
