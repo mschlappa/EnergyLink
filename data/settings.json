@@ -7,7 +7,7 @@
   "pvSurplusOnUrlBackup": "http://127.0.0.1:8083/fhem?cmd.autoWallboxPV=on",
   "pvSurplusOffUrlBackup": "http://127.0.0.1:8083/fhem?cmd.autoWallboxPV=off",
   "nightChargingSchedule": {
-    "enabled": false,
+    "enabled": true,
     "startTime": "00:00",
     "endTime": "05:00"
   },
