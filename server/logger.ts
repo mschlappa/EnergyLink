@@ -10,7 +10,7 @@ const logLevelPriority: Record<LogLevel, number> = {
 
 export function log(
   level: LogLevel, 
-  category: "wallbox" | "wallbox-mock" | "e3dc" | "e3dc-mock" | "fhem" | "fhem-mock" | "webhook" | "system", 
+  category: "wallbox" | "wallbox-mock" | "e3dc" | "e3dc-mock" | "fhem" | "fhem-mock" | "webhook" | "system" | "storage", 
   message: string, 
   details?: string
 ): void {

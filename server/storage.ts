@@ -4,17 +4,49 @@ import { join } from "path";
 
 // Simple logger for storage operations (avoids circular dependency with logger.ts)
 // Uses identical timestamp formatting as logger.ts to ensure consistency
+// Respects the configured log level to avoid excessive console output
 function logStorage(level: "debug" | "info" | "warning", message: string, details?: string): void {
-  const now = new Date();
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
-  const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
-  const timestamp = `${hours}:${minutes}:${seconds},${milliseconds}`;
+  const logLevelPriority: Record<string, number> = {
+    debug: 0,
+    info: 1,
+    warning: 2,
+    error: 3,
+  };
+
+  // Check log level before emitting (with fallback for initialization phase)
+  let currentLevelPriority = logLevelPriority.debug; // Default: log everything during init
+  try {
+    if (typeof storage !== 'undefined') {
+      const currentSettings = storage.getLogSettings();
+      currentLevelPriority = logLevelPriority[currentSettings.level];
+    }
+  } catch (e) {
+    // storage not yet initialized - use default
+  }
   
-  const levelUpper = level.toUpperCase() as 'DEBUG' | 'INFO' | 'WARNING';
-  const fullMessage = details ? `${message} - ${details}` : message;
-  console.log(`[${timestamp}] [${levelUpper}] [storage] ${fullMessage}`);
+  const messageLevelPriority = logLevelPriority[level];
+  
+  if (messageLevelPriority >= currentLevelPriority) {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
+    const timestamp = `${hours}:${minutes}:${seconds},${milliseconds}`;
+    
+    const levelUpper = level.toUpperCase() as 'DEBUG' | 'INFO' | 'WARNING';
+    const fullMessage = details ? `${message} - ${details}` : message;
+    console.log(`[${timestamp}] [${levelUpper}] [storage] ${fullMessage}`);
+    
+    // Also add to central log store so it appears in UI (if storage is ready)
+    try {
+      if (typeof storage !== 'undefined') {
+        storage.addLog({ level: level as LogLevel, category: "storage", message, details });
+      }
+    } catch (e) {
+      // storage not yet initialized - skip
+    }
+  }
 }
 
 export interface IStorage {
