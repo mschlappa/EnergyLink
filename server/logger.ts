@@ -8,7 +8,12 @@ const logLevelPriority: Record<LogLevel, number> = {
   error: 3,
 };
 
-export function log(level: LogLevel, category: "wallbox" | "webhook" | "system", message: string, details?: string): void {
+export function log(
+  level: LogLevel, 
+  category: "wallbox" | "wallbox-mock" | "e3dc" | "e3dc-mock" | "fhem" | "fhem-mock" | "webhook" | "system", 
+  message: string, 
+  details?: string
+): void {
   const currentSettings = storage.getLogSettings();
   const currentLevelPriority = logLevelPriority[currentSettings.level];
   const messageLevelPriority = logLevelPriority[level];
