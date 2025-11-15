@@ -128,8 +128,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         input: report2?.Input, // Potenzialfreier Kontakt (optional)
         enableSys: report2["Enable sys"] || 0,
         maxCurr: (report2["Max curr"] || 0) / 1000,
-        ePres: report3["E pres"] || 0,  // Energie in Wh (Frontend konvertiert zu kWh)
-        eTotal: report3["E total"] || 0,  // Energie in Wh (Frontend konvertiert zu kWh)
+        ePres: (report3["E pres"] || 0) / 10,  // von dWh zu Wh (Frontend konvertiert zu kWh)
+        eTotal: (report3["E total"] || 0) / 10,  // von dWh zu Wh (Frontend konvertiert zu kWh)
         power: (report3?.P || 0) / 1000000,
         phases: detectedPhases,
         i1: i1 / 1000,
