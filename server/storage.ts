@@ -2,6 +2,9 @@ import type { Settings, ControlState, LogEntry, LogSettings, LogLevel, PlugStatu
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 
+// Global cache for log level (loaded once at startup, before storage is created)
+let cachedLogLevel: LogLevel = "info"; // Default: INFO
+
 // Simple logger for storage operations (avoids circular dependency with logger.ts)
 // Uses identical timestamp formatting as logger.ts to ensure consistency
 // Respects the configured log level to avoid excessive console output
@@ -13,17 +16,7 @@ function logStorage(level: "debug" | "info" | "warning", message: string, detail
     error: 3,
   };
 
-  // Check log level before emitting (with fallback for initialization phase)
-  let currentLevelPriority = logLevelPriority.debug; // Default: log everything during init
-  try {
-    if (typeof storage !== 'undefined') {
-      const currentSettings = storage.getLogSettings();
-      currentLevelPriority = logLevelPriority[currentSettings.level];
-    }
-  } catch (e) {
-    // storage not yet initialized - use default
-  }
-  
+  const currentLevelPriority = logLevelPriority[cachedLogLevel];
   const messageLevelPriority = logLevelPriority[level];
   
   if (messageLevelPriority >= currentLevelPriority) {
@@ -72,6 +65,7 @@ export class MemStorage implements IStorage {
   private controlStateFilePath = join(process.cwd(), "data", "control-state.json");
   private plugTrackingFilePath = join(process.cwd(), "data", "plug-tracking.json");
   private chargingContextFilePath = join(process.cwd(), "data", "charging-context.json");
+  private logSettingsFilePath = join(process.cwd(), "data", "log-settings.json");
   private settings: Settings | null = null;
   private controlState: ControlState = {
     pvSurplus: false,
@@ -91,7 +85,7 @@ export class MemStorage implements IStorage {
   };
   private logs: LogEntry[] = [];
   private logSettings: LogSettings = {
-    level: "debug" as LogLevel,
+    level: "info" as LogLevel,
   };
   private maxLogs = 1000;
 
@@ -101,6 +95,9 @@ export class MemStorage implements IStorage {
     if (!existsSync(dataDir)) {
       mkdirSync(dataDir, { recursive: true });
     }
+
+    // Lade Log-Settings ZUERST - damit logStorage das korrekte Level während Initialisierung verwendet
+    this.logSettings = this.loadLogSettingsFromFile();
 
     // Lade Settings aus Datei oder verwende Defaults
     this.settings = this.loadSettingsFromFile();
@@ -456,12 +453,50 @@ export class MemStorage implements IStorage {
     this.logs = [];
   }
 
+  private loadLogSettingsFromFile(): LogSettings {
+    if (existsSync(this.logSettingsFilePath)) {
+      try {
+        const data = readFileSync(this.logSettingsFilePath, "utf-8");
+        const loaded = JSON.parse(data);
+        // Update global cache immediately so logStorage respects it
+        cachedLogLevel = loaded.level;
+        return loaded;
+      } catch (error) {
+        // Silently fall back to default if file is corrupted
+      }
+    }
+    
+    // Default: INFO level (not DEBUG)
+    const defaults: LogSettings = {
+      level: "info" as LogLevel,
+    };
+    
+    // Update global cache
+    cachedLogLevel = defaults.level;
+    
+    // Save defaults to file for future restarts
+    try {
+      writeFileSync(this.logSettingsFilePath, JSON.stringify(defaults, null, 2), "utf-8");
+    } catch (error) {
+      // Silent fail - not critical
+    }
+    
+    return defaults;
+  }
+
   getLogSettings(): LogSettings {
     return this.logSettings;
   }
 
   saveLogSettings(settings: LogSettings): void {
     this.logSettings = settings;
+    // Update global cache immediately
+    cachedLogLevel = settings.level;
+    try {
+      writeFileSync(this.logSettingsFilePath, JSON.stringify(settings, null, 2), "utf-8");
+    } catch (error) {
+      // Silent fail - log settings are not critical for operation
+    }
   }
 }
 

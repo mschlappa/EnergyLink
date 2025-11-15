@@ -824,7 +824,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Führe Strategie aus
-      log("info", "system", `Strategy Check: ${strategyConfig.activeStrategy}`);
+      log("debug", "system", `Strategy Check: ${strategyConfig.activeStrategy}`);
       await strategyController.processStrategy(
         e3dcLiveData,
         settings.wallboxIp

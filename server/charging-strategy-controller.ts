@@ -626,7 +626,7 @@ export class ChargingStrategyController {
         strategy: newStrategy,
       });
       
-      log("info", "system", `Max Power Strategie aktiviert - nächster Strategy Check startet Ladung`);
+      log("debug", "system", `Max Power Strategie aktiviert - nächster Strategy Check startet Ladung`);
     } else if (newStrategy === "off") {
       storage.updateChargingContext({
         strategy: newStrategy,
